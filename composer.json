@@ -1,0 +1,25 @@
+{
+  "name": "zver/package-template",
+  "description": "this is universal package template for development and testing",
+  "minimum-stability": "stable",
+  "config": {
+    "optimize-autoloader": true
+  },
+  "autoload": {
+    "psr-4": {
+      "": "src/"
+    },
+    "files": [
+      "src/Functions.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "": "tests/"
+    }
+  },
+  "require": {
+  },
+  "require-dev": {
+  }
+}
