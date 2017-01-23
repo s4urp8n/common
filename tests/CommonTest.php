@@ -116,4 +116,23 @@ class CommonTest extends PHPUnit\Framework\TestCase
         );
     }
 
+    public function testAutoloader3()
+    {
+        $this->foreachFalse(
+            [
+                class_exists('\TestClass2'),
+                class_exists('\TestDir\TestClass'),
+            ]
+        );
+
+        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+
+        $this->foreachTrue(
+            [
+                class_exists('\TestClass2'),
+                class_exists('\TestDir\TestClass'),
+            ]
+        );
+    }
+
 }
