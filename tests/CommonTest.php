@@ -14,4 +14,69 @@ class CommonTest extends PHPUnit\Framework\TestCase
         );
     }
 
+    public function testReplaceSlashes()
+    {
+        $this->foreachSame([
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('/'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('\\'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('//\\\\\\\\'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\'),
+                                   DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR,
+                               ],
+
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('///'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('\\/////'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('//\\\\\//\\//\\\\'),
+                                   DIRECTORY_SEPARATOR,
+                               ],
+                               [
+                                   \Zver\Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\path\\//path\\'),
+                                   DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR . 'path' . DIRECTORY_SEPARATOR,
+                               ],
+                           ]);
+    }
+
+    public function testConvertEncoding()
+    {
+        $this->foreachSame([
+                               [
+                                   \Zver\Common::convertToDefaultEncoding('string', 'UTF-8'),
+                                   'string',
+                               ],
+                               [
+                                   \Zver\Common::convertToDefaultEncoding('string', 'Windows-1251'),
+                                   'string',
+                               ],
+                               [
+                                   \Zver\Common::convertToDefaultEncoding('с т р о к а', 'UTF-8'),
+                                   'с т р о к а',
+                               ],
+                               [
+                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(packageTestFile('StringWin1251.txt')), 'Windows-1251'),
+                                   'строка',
+                               ],
+                               [
+                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(packageTestFile('StringUTF-8.txt')), 'UTF-8'),
+                                   'строка',
+                               ],
+                           ]);
+    }
+
 }
