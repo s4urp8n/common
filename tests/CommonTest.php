@@ -33,7 +33,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    \Zver\Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\'),
                                    DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR,
                                ],
-
                                [
                                    \Zver\Common::replaceSlashesToPlatformSlashes('///'),
                                    DIRECTORY_SEPARATOR,
@@ -77,6 +76,44 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    'строка',
                                ],
                            ]);
+    }
+
+    public function testAutoloader()
+    {
+        $this->foreachFalse(
+            [
+                class_exists('TestClass2'),
+                class_exists('TestDir\TestClass'),
+            ]
+        );
+
+        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader/'));
+
+        $this->foreachTrue(
+            [
+                class_exists('TestClass2'),
+                class_exists('TestDir\TestClass'),
+            ]
+        );
+    }
+
+    public function testAutoloader2()
+    {
+        $this->foreachFalse(
+            [
+                class_exists('TestClass2'),
+                class_exists('TestDir\TestClass'),
+            ]
+        );
+
+        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+
+        $this->foreachTrue(
+            [
+                class_exists('TestClass2'),
+                class_exists('TestDir\TestClass'),
+            ]
+        );
     }
 
 }

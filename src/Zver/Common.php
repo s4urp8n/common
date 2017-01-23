@@ -43,5 +43,40 @@ namespace Zver {
         {
             return iconv($fromEncoding, self::getDefaultEncoding() . '//IGNORE', $string);
         }
+
+        /**
+         * Register autoloading PSR-4 from directory
+         *
+         * @param string $directory
+         */
+        public static function registerAutoloadClassesFrom($directory)
+        {
+            spl_autoload_register(
+                function ($className) use ($directory) {
+
+                    $realDirectory = realpath(static::replaceSlashesToPlatformSlashes($directory));
+
+                    if (file_exists($realDirectory)) {
+
+                        /**
+                         * Trailing slash
+                         */
+                        $realDirectory = mb_eregi_replace(preg_quote(DIRECTORY_SEPARATOR) . '+$', '', $realDirectory);
+
+                        /**
+                         * Full class name
+                         */
+                        $fileName = $realDirectory . DIRECTORY_SEPARATOR
+                                    . trim(static::replaceSlashesToPlatformSlashes($className), '\\/')
+                                    . '.php';
+
+                        if (file_exists($fileName)) {
+                            include_once $fileName;
+                        }
+
+                    }
+                }
+            );
+        }
     }
 }
