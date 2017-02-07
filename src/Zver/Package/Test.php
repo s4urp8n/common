@@ -1,6 +1,6 @@
 <?php
 
-namespace Package {
+namespace Zver\Package {
 
     trait Test
     {
@@ -16,20 +16,6 @@ namespace Package {
         {
             foreach ($values as $value) {
                 $this->assertFalse($value);
-            }
-        }
-
-        public function foreachEquals(array $values)
-        {
-            foreach ($values as $value) {
-                $this->assertEquals($value[0], $value[1]);
-            }
-        }
-
-        public function foreachNotEquals(array $values)
-        {
-            foreach ($values as $value) {
-                $this->assertNotEquals($value[0], $value[1]);
             }
         }
 

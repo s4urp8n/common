@@ -3,13 +3,19 @@
 class CommonTest extends PHPUnit\Framework\TestCase
 {
 
-    use Package\Test;
+    use \Zver\Package\Test;
 
     public function testDefaultEncoding()
     {
         $this->foreachSame(
             [
                 [\Zver\Common::getDefaultEncoding(), 'UTF-8'],
+            ]
+        );
+
+        $this->foreachNotSame(
+            [
+                [\Zver\Common::getDefaultEncoding(), 'Windows-1251'],
             ]
         );
     }
