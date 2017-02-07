@@ -74,11 +74,11 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    'с т р о к а',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(packageTestFile('StringWin1251.txt')), 'Windows-1251'),
+                                   \Zver\Common::convertToDefaultEncoding(file_get_contents($this->packageTestFile('StringWin1251.txt')), 'Windows-1251'),
                                    'строка',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(packageTestFile('StringUTF-8.txt')), 'UTF-8'),
+                                   \Zver\Common::convertToDefaultEncoding(file_get_contents($this->packageTestFile('StringUTF-8.txt')), 'UTF-8'),
                                    'строка',
                                ],
                            ]);
@@ -139,6 +139,12 @@ class CommonTest extends PHPUnit\Framework\TestCase
                 class_exists('\TestDir\TestClass'),
             ]
         );
+    }
+
+    public function testPackageFile()
+    {
+        $this->assertNotEmpty($this->packageFile('.gitkeep'));
+        $this->assertSame(file_get_contents($this->packageFile('.gitkeep')), 'Save files for your packages in this folder');
     }
 
 }

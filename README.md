@@ -18,5 +18,8 @@ Common package of ZVER packages
     * foreachFalse(array $values)
     * foreachSame(array $values)
     * foreachNotSame(array $values)
+    * packageFile($name)
+    * packageTestFile($name)
+    
 
 Created using [Package template](https://github.com/s4urp8n/package-template)
