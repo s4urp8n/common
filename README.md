@@ -4,6 +4,19 @@ Common package of ZVER packages
 
 ## Methods
 
-* getDefaultEncoding() - UTF-8
+*  \Zver\Common
+    * getDefaultEncoding() - UTF-8
+    * replaceSlashesToPlatformSlashes($path)
+    * convertToDefaultEncoding($string, $fromEncoding)
+    * registerAutoloadClassesFrom($directory)
+
+
+## Traits
+
+*  \Zver\Package\Test
+    * foreachTrue(array $values)
+    * foreachFalse(array $values)
+    * foreachSame(array $values)
+    * foreachNotSame(array $values)
 
 Created using [Package template](https://github.com/s4urp8n/package-template)
