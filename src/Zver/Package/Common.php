@@ -16,7 +16,7 @@ namespace Zver\Package {
             /**
              * Using in current (present) test (in this file) (here!)
              */
-            if ($calledFileName == 'CommonTest') {
+            if ($calledFileName == 'CommonTest' || $test) {
                 return dirname($calledFile) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
 
@@ -35,7 +35,7 @@ namespace Zver\Package {
             /**
              * Using in current (present) test (in this file) (here!)
              */
-            if ($calledFileName == 'CommonTest') {
+            if ($calledFileName == 'CommonTest' || $test) {
                 return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
         }
