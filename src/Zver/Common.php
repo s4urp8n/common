@@ -78,6 +78,13 @@ namespace Zver {
             });
         }
 
+        /**
+         * Get common path of both path's
+         *
+         * @param $path1
+         * @param $path2
+         * @return string
+         */
         public static function getCommonPath($path1, $path2)
         {
             $common = [];
@@ -103,6 +110,12 @@ namespace Zver {
 
         }
 
+        /**
+         * Get full path to file in package tests files folder
+         *
+         * @param $name Name of file
+         * @return string Full path to file in package tests folder
+         */
         public static function getPackageTestFilePath($name)
         {
             $calledFile = debug_backtrace()[0]['file'];
@@ -116,13 +129,19 @@ namespace Zver {
             /**
              * Using in current (present) test (in this file) (here!)
              */
-            if ($calledFileName == 'CommonTest' || $test) {
+            if ($test) {
                 return dirname($calledFile) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
 
             return static::getCommonPath($calledFile, __DIR__) . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
         }
 
+        /**
+         * Get full path to file in package files folder
+         *
+         * @param $name Name of file
+         * @return string Full path to file
+         */
         public static function getPackageFilePath($name)
         {
             $calledFile = debug_backtrace()[0]['file'];
@@ -136,11 +155,12 @@ namespace Zver {
             /**
              * Using in current (present) test (in this file) (here!)
              */
-            if ($calledFileName == 'CommonTest' || $test) {
+            if ($test) {
                 return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
 
             return static::getCommonPath($calledFile, __DIR__) . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
         }
+
     }
 }

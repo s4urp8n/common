@@ -17,7 +17,7 @@ if (file_exists($composerFile)) {
 \Zver\Common::registerAutoloadClassesFrom($classesDirectory);
 
 //Functions file autoload
-$functionsFile = $srcDirectory . 'Functions.php';
-if (file_exists($functionsFile)) {
-    include_once($functionsFile);
+$packageFunctions = $srcDirectory . 'Functions.php';
+if (file_exists($packageFunctions)) {
+    include_once($packageFunctions);
 }
