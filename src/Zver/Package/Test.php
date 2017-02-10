@@ -33,38 +33,5 @@ namespace Zver\Package {
             }
         }
 
-        /**
-         * @param $name Name of file in files folder
-         *
-         * @return string Full filename of package file
-         */
-        public function packageFile($name)
-        {
-            return realpath(__DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, [
-                                '..',
-                                '..',
-                                '..',
-                                'files',
-                                $name,
-                            ]));
-        }
-
-        /**
-         * @param $name Name of file in files folder
-         *
-         * @return string Full filename of package test file
-         */
-        public function packageTestFile($name)
-        {
-            return realpath(__DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, [
-                                '..',
-                                '..',
-                                '..',
-                                'tests',
-                                'files',
-                                $name,
-                            ]));
-        }
-
     }
 }
