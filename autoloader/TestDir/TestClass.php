@@ -1,20 +1,18 @@
 <?php
 namespace TestDir {
 
-    use Zver\Package\Common;
+    use Zver\Common;
 
     class TestClass
     {
-        use Common;
-
         public static function gitKeep()
         {
-            return static::getPackageFilePath('.gitkeep');
+            return Common::getPackageFilePath('.gitkeep');
         }
 
         public static function gitTestKeep()
         {
-            return static::getPackageTestFilePath('.gitkeep');
+            return Common::getPackageTestFilePath('.gitkeep');
         }
     }
 }

@@ -1,22 +1,23 @@
 <?php
 
+use Zver\Common;
+
 class CommonTest extends PHPUnit\Framework\TestCase
 {
 
     use \Zver\Package\Test;
-    use \Zver\Package\Common;
 
     public function testDefaultEncoding()
     {
         $this->foreachSame(
             [
-                [\Zver\Common::getDefaultEncoding(), 'UTF-8'],
+                [Common::getDefaultEncoding(), 'UTF-8'],
             ]
         );
 
         $this->foreachNotSame(
             [
-                [\Zver\Common::getDefaultEncoding(), 'Windows-1251'],
+                [Common::getDefaultEncoding(), 'Windows-1251'],
             ]
         );
     }
@@ -25,35 +26,35 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
         $this->foreachSame([
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('/'),
+                                   Common::replaceSlashesToPlatformSlashes('/'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('\\'),
+                                   Common::replaceSlashesToPlatformSlashes('\\'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('//\\\\\\\\'),
+                                   Common::replaceSlashesToPlatformSlashes('//\\\\\\\\'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\'),
+                                   Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\'),
                                    DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('///'),
+                                   Common::replaceSlashesToPlatformSlashes('///'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('\\/////'),
+                                   Common::replaceSlashesToPlatformSlashes('\\/////'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('//\\\\\//\\//\\\\'),
+                                   Common::replaceSlashesToPlatformSlashes('//\\\\\//\\//\\\\'),
                                    DIRECTORY_SEPARATOR,
                                ],
                                [
-                                   \Zver\Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\path\\//path\\'),
+                                   Common::replaceSlashesToPlatformSlashes('//path\\\\\\\\path\\//path\\'),
                                    DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR . "path" . DIRECTORY_SEPARATOR . 'path' . DIRECTORY_SEPARATOR,
                                ],
                            ]);
@@ -63,23 +64,23 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
         $this->foreachSame([
                                [
-                                   \Zver\Common::convertToDefaultEncoding('string', 'UTF-8'),
+                                   Common::convertToDefaultEncoding('string', 'UTF-8'),
                                    'string',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding('string', 'Windows-1251'),
+                                   Common::convertToDefaultEncoding('string', 'Windows-1251'),
                                    'string',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding('с т р о к а', 'UTF-8'),
+                                   Common::convertToDefaultEncoding('с т р о к а', 'UTF-8'),
                                    'с т р о к а',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(static::getPackageTestFilePath('StringWin1251.txt')), 'Windows-1251'),
+                                   Common::convertToDefaultEncoding(file_get_contents(Common::getPackageTestFilePath('StringWin1251.txt')), 'Windows-1251'),
                                    'строка',
                                ],
                                [
-                                   \Zver\Common::convertToDefaultEncoding(file_get_contents(static::getPackageTestFilePath('StringUTF-8.txt')), 'UTF-8'),
+                                   Common::convertToDefaultEncoding(file_get_contents(Common::getPackageTestFilePath('StringUTF-8.txt')), 'UTF-8'),
                                    'строка',
                                ],
                            ]);
@@ -94,7 +95,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
             ]
         );
 
-        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader/'));
+        Common::registerAutoloadClassesFrom(Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader/'));
 
         $this->foreachTrue(
             [
@@ -113,7 +114,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
             ]
         );
 
-        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+        Common::registerAutoloadClassesFrom(Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
 
         $this->foreachTrue(
             [
@@ -132,7 +133,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
             ]
         );
 
-        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+        Common::registerAutoloadClassesFrom(Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
 
         $this->foreachTrue(
             [
@@ -144,20 +145,18 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function testPackageFile()
     {
-        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+        Common::registerAutoloadClassesFrom(Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
 
         $gitKeep = 'Save files for your packages in this folder';
         $gitTestKeep = 'Save files for your tests in this folder';
 
-        $this->assertSame(file_get_contents(static::getPackageFilePath('.gitkeep')), $gitKeep);
         $this->assertSame(file_get_contents(\TestDir\TestClass::gitKeep('.gitkeep')), $gitKeep);
         $this->assertSame(file_get_contents(\TestClass2::gitKeep('.gitkeep')), $gitKeep);
-        $this->assertSame(file_get_contents(\Zver\Common::getPackageFilePath('.gitkeep')), $gitKeep);
+        $this->assertSame(file_get_contents(Common::getPackageFilePath('.gitkeep')), $gitKeep);
 
-        $this->assertSame(file_get_contents(static::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
         $this->assertSame(file_get_contents(\TestDir\TestClass::gitTestKeep('.gitkeep')), $gitTestKeep);
         $this->assertSame(file_get_contents(\TestClass2::gitTestKeep('.gitkeep')), $gitTestKeep);
-        $this->assertSame(file_get_contents(\Zver\Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
+        $this->assertSame(file_get_contents(Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
     }
 
 }
