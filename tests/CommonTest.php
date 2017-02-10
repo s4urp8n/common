@@ -144,8 +144,20 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function testPackageFile()
     {
-        $this->assertNotEmpty(static::getPackageFilePath('.gitkeep'));
-        $this->assertSame(file_get_contents(static::getPackageFilePath('.gitkeep')), 'Save files for your packages in this folder');
+        \Zver\Common::registerAutoloadClassesFrom(\Zver\Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
+
+        $gitKeep = 'Save files for your packages in this folder';
+        $gitTestKeep = 'Save files for your tests in this folder';
+
+        $this->assertSame(file_get_contents(static::getPackageFilePath('.gitkeep')), $gitKeep);
+        $this->assertSame(file_get_contents(\TestDir\TestClass::gitKeep('.gitkeep')), $gitKeep);
+        $this->assertSame(file_get_contents(\TestClass2::gitKeep('.gitkeep')), $gitKeep);
+        $this->assertSame(file_get_contents(\Zver\Common::getPackageFilePath('.gitkeep')), $gitKeep);
+
+        $this->assertSame(file_get_contents(static::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
+        $this->assertSame(file_get_contents(\TestDir\TestClass::gitTestKeep('.gitkeep')), $gitTestKeep);
+        $this->assertSame(file_get_contents(\TestClass2::gitTestKeep('.gitkeep')), $gitTestKeep);
+        $this->assertSame(file_get_contents(\Zver\Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
     }
 
 }

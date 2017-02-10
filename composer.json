@@ -1,7 +1,7 @@
 {
   "name": "zver/common",
   "description": "common class of ZVER",
-  "minimum-stability": "dev",
+  "minimum-stability": "stable",
   "config": {
     "optimize-autoloader": true
   },

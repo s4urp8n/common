@@ -11,6 +11,9 @@ namespace Zver {
      */
     class Common
     {
+
+        use Package\Common;
+
         /**
          * Get default encoding of project
          *
