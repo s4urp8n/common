@@ -185,10 +185,10 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                [
                                    Common::getDirectoryContent(__DIR__),
                                    [
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                    ],
                                ],
                                [
@@ -198,6 +198,29 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                    ],
+                               ],
+                           ]);
+    }
+
+    public function testGetDirectoryContentRecursive()
+    {
+        $this->foreachSame([
+                               [
+                                   Common::getDirectoryContentRecursive(__DIR__),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                   ],
+                               ],
+                               [
+                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
                                ],
                            ]);
     }

@@ -189,6 +189,15 @@ namespace Zver {
             return !empty(trim(shell_exec($windowsCommand)));
         }
 
+        protected static function sortFilesAndFolders($filesAndFolders)
+        {
+            usort($filesAndFolders, function ($a, $b) {
+                return strcasecmp($a, $b);
+            });
+
+            return $filesAndFolders;
+        }
+
         public static function getDirectoryContent($directory)
         {
             $content = [];
@@ -203,25 +212,27 @@ namespace Zver {
                     return realpath($directory . DIRECTORY_SEPARATOR . $value);
                 }, $content);
 
-                usort($content, function ($a, $b) {
-
-                    $aDir = is_dir($a);
-                    $bDir = is_dir($b);
-
-                    if ($aDir && !$bDir) {
-                        return -1;
-                    }
-
-                    if (!$aDir && $bDir) {
-                        return 1;
-                    }
-
-                    return strcasecmp($a, $b);
-                });
+                $content = static::sortFilesAndFolders($content);
 
             }
 
             return $content;
+        }
+
+        public static function getDirectoryContentRecursive($directory)
+        {
+            $content = [];
+
+            foreach (static::getDirectoryContent($directory) as $path) {
+                if (is_file($path)) {
+                    $content[] = $path;
+                } else {
+                    $content[] = $path;
+                    $content = array_merge($content, static::getDirectoryContentRecursive($path));
+                }
+            }
+
+            return static::sortFilesAndFolders($content);
         }
 
     }
