@@ -189,5 +189,40 @@ namespace Zver {
             return !empty(trim(shell_exec($windowsCommand)));
         }
 
+        public static function getDirectoryContent($directory)
+        {
+            $content = [];
+
+            if (is_dir($directory)) {
+
+                $content = scandir($directory, SCANDIR_SORT_ASCENDING);
+                array_shift($content);
+                array_shift($content);
+
+                $content = array_map(function ($value) use ($directory) {
+                    return realpath($directory . DIRECTORY_SEPARATOR . $value);
+                }, $content);
+
+                usort($content, function ($a, $b) {
+
+                    $aDir = is_dir($a);
+                    $bDir = is_dir($b);
+
+                    if ($aDir && !$bDir) {
+                        return -1;
+                    }
+
+                    if (!$aDir && $bDir) {
+                        return 1;
+                    }
+
+                    return strcasecmp($a, $b);
+                });
+
+            }
+
+            return $content;
+        }
+
     }
 }

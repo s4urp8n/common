@@ -179,4 +179,27 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
+    public function testGetDirectoryContent()
+    {
+        $this->foreachSame([
+                               [
+                                   Common::getDirectoryContent(__DIR__),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
+                                   ],
+                               ],
+                               [
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                   ],
+                               ],
+                           ]);
+    }
+
 }
