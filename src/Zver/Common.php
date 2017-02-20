@@ -162,5 +162,32 @@ namespace Zver {
             return static::getCommonPath($calledFile, __DIR__) . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
         }
 
+        public static function getOSName()
+        {
+            return PHP_OS;
+        }
+
+        public static function isWindowsOS($forcedString = null)
+        {
+            return stripos(empty($forcedString) ? static::getOSName() : $forcedString, 'WIN') !== false;
+        }
+
+        public static function isLinuxOS($forcedString = null)
+        {
+            return stripos(empty($forcedString) ? static::getOSName() : $forcedString, 'LINUX') !== false;
+        }
+
+        public static function isProcessRunning($pid)
+        {
+            $windowsCommand = 'tasklist /FI "PID eq ' . $pid . '" | find "php.exe"';
+            $linuxCommand = "ps --pid " . $pid . " | grep php | grep " . $pid;
+
+            if (static::isLinuxOS()) {
+                return !empty(trim(shell_exec($linuxCommand)));
+            }
+
+            return !empty(trim(shell_exec($windowsCommand)));
+        }
+
     }
 }

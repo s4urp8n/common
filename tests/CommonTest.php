@@ -159,4 +159,24 @@ class CommonTest extends PHPUnit\Framework\TestCase
         $this->assertSame(file_get_contents(Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
     }
 
+    public function testProcessRunningAndOS()
+    {
+        $pid = getmypid();
+
+        $otherPid = getmypid() . rand(111, 999);
+
+        if (Common::isLinuxOS()) {
+            $this->assertRegexp('/linux/i', Common::getOSName());
+            $this->assertFalse(Common::isWindowsOS());
+            $this->assertTrue(Common::isProcessRunning($pid));
+            $this->assertFalse(Common::isProcessRunning($otherPid));
+        } else {
+            $this->assertRegexp('/win/i', Common::getOSName());
+            $this->assertFalse(Common::isLinuxOS());
+            $this->assertTrue(Common::isProcessRunning($pid));
+            $this->assertFalse(Common::isProcessRunning($otherPid));
+        }
+
+    }
+
 }
