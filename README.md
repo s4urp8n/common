@@ -9,6 +9,15 @@ Common package of ZVER packages
     * replaceSlashesToPlatformSlashes($path)
     * convertToDefaultEncoding($string, $fromEncoding)
     * registerAutoloadClassesFrom($directory)
+    * isWindowsOS()
+    * isLinuxOS()
+    * isProcessRunning()
+    * execShellSync($command)
+    * execShellAsync($command)
+    * getCommonPath($path1, $path2)
+    * getDirectoryContent($directory)
+    * getDirectoryContentRecursive($directory)
+    * getOSName()
 
 
 ## Traits
