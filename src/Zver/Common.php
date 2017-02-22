@@ -216,16 +216,16 @@ namespace Zver {
 
         public static function isProcessRunning($pid, $processName = null)
         {
-            $windowsCommand = 'tasklist | find " ' . $pid . ' "';
-            $linuxCommand = "ps --pid " . $pid . " | grep " . $pid;
+            $windowsCommand = 'tasklist';
+            $windowsRegexp = '\s+' . $pid . '\s+';
+
+            $linuxCommand = "ps --pid " . $pid;
+            $linuxRegexp = '^\s+' . $pid . '\s+';
 
             if (!empty($processName)) {
-                $windowsCommand .= ' | find ' . escapeshellarg($processName);
-                $linuxCommand .= ' | grep ' . escapeshellarg($processName);
+                $windowsRegexp = '^' . $processName . '\S+' . $windowsRegexp;
+                $linuxCommand = $linuxCommand . " | grep " . escapeshellarg($processName);
             }
-
-            $windowsRegexp = '# ' . $pid . ' #';
-            $linuxRegexp = '#^' . $pid . '\s+#';
 
             $command = $windowsCommand;
             $regexp = $windowsRegexp;
@@ -235,16 +235,23 @@ namespace Zver {
                 $regexp = $linuxRegexp;
             }
 
-            $output = shell_exec($command);
+            $regexp = "/" . $regexp . "/i";
 
-            $output = mb_convert_case($output, MB_CASE_LOWER, Common::getDefaultEncoding());
-            $output = mb_eregi_replace('\s+', ' ', $output);
-            $output = mb_eregi_replace('^\s+', '', $output);
-            $output = mb_eregi_replace('\s+$', '', $output);
+            //var_dump("\nCOMMAND=[" . $command . "]\n");
+            //var_dump("\nREGEXP=[" . $regexp . "]\n");
 
-            $match = preg_match($regexp, $output) === 1;
+            $handle = popen($command, 'r');
+            $outputs = preg_split("/[\n\r]+/i", stream_get_contents($handle));
 
-            return $match;
+            pclose($handle);
+
+            foreach ($outputs as $output) {
+                if (preg_match($regexp, $output) === 1) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         protected static function sortFilesAndFolders($filesAndFolders)
