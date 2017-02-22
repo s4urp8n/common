@@ -237,13 +237,7 @@ namespace Zver {
 
             $regexp = "/" . $regexp . "/i";
 
-            //var_dump("\nCOMMAND=[" . $command . "]\n");
-            //var_dump("\nREGEXP=[" . $regexp . "]\n");
-
-            $handle = popen($command, 'r');
-            $outputs = preg_split("/[\n\r]+/i", stream_get_contents($handle));
-
-            pclose($handle);
+            $outputs = preg_split("/[\n\r]+/i", static::execShellSync($command));
 
             foreach ($outputs as $output) {
                 if (preg_match($regexp, $output) === 1) {
@@ -298,6 +292,24 @@ namespace Zver {
             }
 
             return static::sortFilesAndFolders($content);
+        }
+
+        public static function execShellSync($command)
+        {
+            $handle = popen($command, 'r');
+            $output = stream_get_contents($handle);
+            pclose($handle);
+
+            return $output;
+        }
+
+        public static function execShellAsync($command)
+        {
+            if (static::isWindowsOS()) {
+                pclose(popen("start /B " . $command, "r"));
+            } else {
+                exec($command . " > /dev/null &");
+            }
         }
 
     }

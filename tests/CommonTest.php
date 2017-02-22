@@ -242,8 +242,10 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
                                    [
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'echoPHP.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.txt',
                                    ],
                                ],
                            ]);
@@ -261,8 +263,10 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'echoPHP.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.txt',
                                    ],
                                ],
                                [
@@ -270,6 +274,16 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
                                ],
                            ]);
+    }
+
+    public function testExecSync()
+    {
+
+    }
+
+    public function testExecAsync()
+    {
+
     }
 
 }
