@@ -306,7 +306,7 @@ namespace Zver {
         public static function execShellAsync($command)
         {
             if (static::isWindowsOS()) {
-                pclose(popen("start /B " . $command, "r"));
+                pclose(popen('start /B " " ' . $command, "r"));
             } else {
                 exec($command . " > /dev/null &");
             }
