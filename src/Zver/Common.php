@@ -169,24 +169,82 @@ namespace Zver {
 
         public static function isWindowsOS($forcedString = null)
         {
-            return stripos(empty($forcedString) ? static::getOSName() : $forcedString, 'WIN') !== false;
+            $string = empty($forcedString) ? static::getOSName() : $forcedString;
+
+            $regexps = [
+                '/\bwindows\b/i',
+                '/\bwinnt\b/i',
+                '/\bwin\b/i',
+            ];
+
+            foreach ($regexps as $regexp) {
+                if (preg_match($regexp, $string) === 1) {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static function isLinuxOS($forcedString = null)
         {
-            return stripos(empty($forcedString) ? static::getOSName() : $forcedString, 'LINUX') !== false;
-        }
+            $string = empty($forcedString) ? static::getOSName() : $forcedString;
 
-        public static function isProcessRunning($pid)
-        {
-            $windowsCommand = 'tasklist /FI "PID eq ' . $pid . '" | find "php.exe"';
-            $linuxCommand = "ps --pid " . $pid . " | grep php | grep " . $pid;
+            $regexps = [
+                '/linux/i',
+                '/\bubuntu\b/i',
+                '/\bfedora\b/i',
+                '/\bfedoracore\b/i',
+                '/\bdebian\b/i',
+                '/\bmandriva\b/i',
+                '/\bslackware\b/i',
+                '/\bmint\b/i',
+                '/\bgentoo\b/i',
+                '/\bmageia\b/i',
+                '/\barch\b/i',
+                '/\bcentos\b/i',
+            ];
 
-            if (static::isLinuxOS()) {
-                return !empty(trim(shell_exec($linuxCommand)));
+            foreach ($regexps as $regexp) {
+                if (preg_match($regexp, $string) === 1) {
+                    return true;
+                }
             }
 
-            return !empty(trim(shell_exec($windowsCommand)));
+            return false;
+        }
+
+        public static function isProcessRunning($pid, $processName = null)
+        {
+            $windowsCommand = 'tasklist | find " ' . $pid . ' "';
+            $linuxCommand = "ps --pid " . $pid . " | grep " . $pid;
+
+            if (!empty($processName)) {
+                $windowsCommand .= ' | find ' . escapeshellarg($processName);
+                $linuxCommand .= ' | grep ' . escapeshellarg($processName);
+            }
+
+            $windowsRegexp = '# ' . $pid . ' #';
+            $linuxRegexp = '#^' . $pid . '\s+#';
+
+            $command = $windowsCommand;
+            $regexp = $windowsRegexp;
+
+            if (static::isLinuxOS()) {
+                $command = $linuxCommand;
+                $regexp = $linuxRegexp;
+            }
+
+            $output = shell_exec($command);
+
+            $output = mb_convert_case($output, MB_CASE_LOWER, Common::getDefaultEncoding());
+            $output = mb_eregi_replace('\s+', ' ', $output);
+            $output = mb_eregi_replace('^\s+', '', $output);
+            $output = mb_eregi_replace('\s+$', '', $output);
+
+            $match = preg_match($regexp, $output) === 1;
+
+            return $match;
         }
 
         protected static function sortFilesAndFolders($filesAndFolders)

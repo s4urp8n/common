@@ -159,22 +159,69 @@ class CommonTest extends PHPUnit\Framework\TestCase
         $this->assertSame(file_get_contents(Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
     }
 
-    public function testProcessRunningAndOS()
+    public function testIsOS()
+    {
+        $this->foreachTrue([
+                               Common::isWindowsOS('win'),
+                               Common::isWindowsOS('windows'),
+                               Common::isWindowsOS('windows xp'),
+                               Common::isWindowsOS('windows vista'),
+                               Common::isWindowsOS('winnt'),
+                               Common::isWindowsOS('win 200'),
+                           ]);
+
+        $this->foreachFalse([
+                                Common::isWindowsOS('linux'),
+                                Common::isWindowsOS('mac os'),
+                                Common::isWindowsOS('free bsd'),
+                                Common::isWindowsOS('internet explorer'),
+                            ]);
+
+        $this->foreachTrue([
+                               Common::isLinuxOS('linux'),
+                               Common::isLinuxOS('ubuntu'),
+                               Common::isLinuxOS('mint'),
+                               Common::isLinuxOS('fedora'),
+                               Common::isLinuxOS('mandriva'),
+                               Common::isLinuxOS('slackware'),
+                               Common::isLinuxOS('debian'),
+                           ]);
+
+        $this->foreachFalse([
+                                Common::isLinuxOS('win'),
+                                Common::isLinuxOS('windows'),
+                                Common::isLinuxOS('windows xp'),
+                                Common::isLinuxOS('windows vista'),
+                                Common::isLinuxOS('winnt'),
+                                Common::isLinuxOS('win 200'),
+                                Common::isLinuxOS('mac os'),
+                                Common::isLinuxOS('free bsd'),
+                                Common::isLinuxOS('internet explorer'),
+                            ]);
+    }
+
+    public function testProcessRunning()
     {
         $pid = getmypid();
 
-        $otherPid = getmypid() . rand(111, 999);
+        $otherPid = getmypid() . rand(111, 999) . rand(111, 999);
 
         if (Common::isLinuxOS()) {
             $this->assertRegexp('/linux/i', Common::getOSName());
             $this->assertFalse(Common::isWindowsOS());
             $this->assertTrue(Common::isProcessRunning($pid));
+            $this->assertTrue(Common::isProcessRunning($pid, 'php'));
+            $this->assertFalse(Common::isProcessRunning($pid, 'phpVeryCool'));
             $this->assertFalse(Common::isProcessRunning($otherPid));
+            $this->assertFalse(Common::isProcessRunning($otherPid, 'php'));
         } else {
             $this->assertRegexp('/win/i', Common::getOSName());
             $this->assertFalse(Common::isLinuxOS());
             $this->assertTrue(Common::isProcessRunning($pid));
+            $this->assertTrue(Common::isProcessRunning($pid, 'php'));
+            $this->assertFalse(Common::isProcessRunning($pid, 'phpVeryCool'));
             $this->assertFalse(Common::isProcessRunning($otherPid));
+            $this->assertFalse(Common::isProcessRunning($otherPid, 'php'));
         }
 
     }
