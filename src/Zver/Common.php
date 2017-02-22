@@ -219,8 +219,8 @@ namespace Zver {
             $windowsCommand = 'tasklist';
             $windowsRegexp = '\s+' . $pid . '\s+';
 
-            $linuxCommand = "ps --pid " . $pid;
-            $linuxRegexp = '^\s+' . $pid . '\s+';
+            $linuxCommand = "ps -A";
+            $linuxRegexp = '^\s*' . $pid . '\s+';
 
             if (!empty($processName)) {
                 $windowsRegexp = '^' . $processName . '\S+' . $windowsRegexp;
