@@ -286,29 +286,14 @@ class CommonTest extends PHPUnit\Framework\TestCase
         return "php " . escapeshellarg(Common::getPackageTestFilePath('sync.php'));
     }
 
-    public function testExecSync()
+    public function testExec()
     {
         file_put_contents($this->getSyncFile(), "0");
 
-        Common::execShellSync($this->getSyncCommand());
-
-        $this->assertSame("1", file_get_contents($this->getSyncFile()));
-        file_put_contents($this->getSyncFile(), "0");
-    }
-
-    public function testExecAsync()
-    {
-        file_put_contents($this->getSyncFile(), "0");
-
-        Common::execShellAsync($this->getSyncCommand());
-        /**
-         * Result dont change because of async sleep
-         */
         $this->assertSame("0", file_get_contents($this->getSyncFile()));
-        /*
-         * Wait for async process ended
-         */
-        sleep(10);
+
+        Common::execShell($this->getSyncCommand());
+
         $this->assertSame("1", file_get_contents($this->getSyncFile()));
         file_put_contents($this->getSyncFile(), "0");
     }
