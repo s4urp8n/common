@@ -237,7 +237,7 @@ namespace Zver {
 
             $regexp = "/" . $regexp . "/i";
 
-            $outputs = preg_split("/[\n\r]+/i", static::execShell($command));
+            $outputs = preg_split("/[\n\r]+/i", static::executeInSystem($command));
 
             foreach ($outputs as $output) {
                 if (preg_match($regexp, $output) === 1) {
@@ -294,7 +294,7 @@ namespace Zver {
             return static::sortFilesAndFolders($content);
         }
 
-        public static function execShell($command)
+        public static function executeInSystem($command)
         {
             $handle = popen($command, 'r');
             $output = stream_get_contents($handle);
