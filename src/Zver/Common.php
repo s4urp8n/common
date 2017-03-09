@@ -303,5 +303,14 @@ namespace Zver {
             return $output;
         }
 
+        public static function killProcess($pid)
+        {
+            if (static::isWindowsOS()) {
+                static::executeInSystem('taskkill /PID ' . $pid . ' /T');
+            } else {
+                posix_kill($pid, SIGKILL);
+            }
+        }
+
     }
 }
