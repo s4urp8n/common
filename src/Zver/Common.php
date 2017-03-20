@@ -312,12 +312,23 @@ namespace Zver {
             }
         }
 
-        public static function executeAsync($command)
+        public static function executeInSystemAsync($command, $outputFile = null)
         {
             if (static::isWindowsOS()) {
-                pclose(popen('start /b "async bg command" ' . $command, 'r'));
+
+                $windowsCommand = 'start /b "async bg command" ' . $command;
+
+                if (!empty($outputFile)) {
+                    $windowsCommand .= ' > "' . $outputFile . '"';
+                }
+
+                pclose(popen($windowsCommand, 'r'));
+
             } else {
-                shell_exec($command . ' &');
+
+                $output = empty($outputFile) ? '/dev/null' : $outputFile;
+
+                shell_exec($command . ' > ' . $output . ' &');
             }
         }
 

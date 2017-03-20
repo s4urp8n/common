@@ -7,6 +7,36 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Test;
 
+    public function testKillProcess()
+    {
+        $command = 'php "' . dirname($this->getSyncFile()) . DIRECTORY_SEPARATOR . 'inf.php"';
+
+        /**
+         * Infinite process
+         */
+        Common::executeInSystemAsync($command);
+
+        sleep(1);
+
+        /**
+         * Get pid of infinite process
+         */
+        $pid = trim(file_get_contents($this->getSyncFile()));
+
+        sleep(20);
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        sleep(20);
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        Common::killProcess($pid);
+
+        $this->assertFalse(Common::isProcessRunning($pid));
+
+    }
+
     public function testDefaultEncoding()
     {
         $this->foreachSame(
@@ -226,6 +256,32 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
+    public function testProcessRunning2()
+    {
+        $command = 'php ' . Common::getPackageTestFilePath('inf.php');
+
+        $descriptorspec = [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"],
+        ];
+
+        $pipes = [];
+
+        $process = proc_open($command, $descriptorspec, $pipes);
+
+        $status = proc_get_status($process);
+
+        $pid = $status['pid'];
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        proc_close($process);
+
+        $this->assertFalse(Common::isProcessRunning($pid));
+
+    }
+
     public function testGetDirectoryContent()
     {
         $this->foreachSame([
@@ -242,11 +298,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
                                    [
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'inf.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.txt',
                                    ],
                                ],
                            ]);
@@ -264,11 +317,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'inf.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.txt',
                                    ],
                                ],
                                [
@@ -280,17 +330,17 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     protected function getSyncFile()
     {
-        return Common::getPackageTestFilePath('sync.txt');
+        return realpath(__DIR__ . '/../sync.txt');
     }
 
     protected function getSyncCommand()
     {
-        return "php " . escapeshellarg(Common::getPackageTestFilePath('sync.php'));
+        return "php " . escapeshellarg(realpath(__DIR__ . '/../sync.php'));
     }
 
     protected function set0ToSync()
     {
-        file_put_contents($this->getSyncFile(), "0", LOCK_EX);
+        file_put_contents($this->getSyncFile(), "0");
     }
 
     protected function assertSync0()
@@ -315,36 +365,12 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
         $this->set0ToSync();
         $this->assertSync0();
-        Common::executeAsync($this->getSyncCommand());
+
+        Common::executeInSystemAsync($this->getSyncCommand());
         $this->assertSync0();
-        sleep(5);
+
+        sleep(9);
         $this->assertSync1();
-    }
-
-    public function testProcessRunning2()
-    {
-        $command = 'php ' . Common::getPackageTestFilePath('inf.php');
-
-        $descriptorspec = [
-            0 => ["pipe", "r"],
-            1 => ["pipe", "w"],
-            2 => ["pipe", "w"]    //here curaengine log all the info into stderror
-        ];
-
-        $pipes = [];
-
-        $process = proc_open($command, $descriptorspec, $pipes);
-
-        $status = proc_get_status($process);
-
-        $pid = $status['pid'];
-
-        $this->assertTrue(Common::isProcessRunning($pid));
-
-        proc_close($process);
-
-        $this->assertFalse(Common::isProcessRunning($pid));
-
     }
 
 }
