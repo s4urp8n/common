@@ -312,5 +312,14 @@ namespace Zver {
             }
         }
 
+        public static function executeAsync($command)
+        {
+            if (static::isWindowsOS()) {
+                pclose(popen('start /b "async bg command" ' . $command, 'r'));
+            } else {
+                shell_exec($command . ' &');
+            }
+        }
+
     }
 }

@@ -242,6 +242,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
                                    [
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'inf.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.php',
@@ -263,6 +264,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'inf.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'sync.php',
@@ -286,15 +288,63 @@ class CommonTest extends PHPUnit\Framework\TestCase
         return "php " . escapeshellarg(Common::getPackageTestFilePath('sync.php'));
     }
 
+    protected function set0ToSync()
+    {
+        file_put_contents($this->getSyncFile(), "0", LOCK_EX);
+    }
+
+    protected function assertSync0()
+    {
+        $this->assertSame("0", file_get_contents($this->getSyncFile()));
+    }
+
+    protected function assertSync1()
+    {
+        $this->assertSame("1", file_get_contents($this->getSyncFile()));
+    }
+
     public function testExecSync()
     {
-        file_put_contents($this->getSyncFile(), "0");
-        $this->assertSame("0", file_get_contents($this->getSyncFile()));
-
+        $this->set0ToSync();
+        $this->assertSync0();
         Common::executeInSystem($this->getSyncCommand());
+        $this->assertSync1();
+    }
 
-        $this->assertSame("1", file_get_contents($this->getSyncFile()));
-        file_put_contents($this->getSyncFile(), "0");
+    public function testExecAsync()
+    {
+        $this->set0ToSync();
+        $this->assertSync0();
+        Common::executeAsync($this->getSyncCommand());
+        $this->assertSync0();
+        sleep(5);
+        $this->assertSync1();
+    }
+
+    public function testProcessRunning2()
+    {
+        $command = 'php ' . Common::getPackageTestFilePath('inf.php');
+
+        $descriptorspec = [
+            0 => ["pipe", "r"],
+            1 => ["pipe", "w"],
+            2 => ["pipe", "w"]    //here curaengine log all the info into stderror
+        ];
+
+        $pipes = [];
+
+        $process = proc_open($command, $descriptorspec, $pipes);
+
+        $status = proc_get_status($process);
+
+        $pid = $status['pid'];
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        proc_close($process);
+
+        $this->assertFalse(Common::isProcessRunning($pid));
+
     }
 
 }
