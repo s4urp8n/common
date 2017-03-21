@@ -332,5 +332,23 @@ namespace Zver {
             }
         }
 
+        public static function getHumanReadableBytes($bytes, $spaceBefore = ' ')
+        {
+
+            $sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
+            $index = 0;
+
+            $divided = $bytes;
+
+            while ($divided >= 1024) {
+                $divided /= 1024;
+                $index++;
+            }
+
+            $result = round($divided, 1);
+
+            return $result . $spaceBefore . $sizes[$index];
+        }
+
     }
 }

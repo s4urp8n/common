@@ -7,6 +7,27 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Test;
 
+    public function testHumanReadableBytes()
+    {
+        $this->foreachSame([
+                               [Common::getHumanReadableBytes(0), '0 B'],
+                               [Common::getHumanReadableBytes(1024 + 512), '1.5 KB'],
+                               [Common::getHumanReadableBytes(1024 + 412), '1.4 KB'],
+                               [Common::getHumanReadableBytes(pow(1024, 1)), '1 KB'],
+                               [Common::getHumanReadableBytes(pow(1024, 2)), '1 MB'],
+                               [Common::getHumanReadableBytes(pow(1024, 3)), '1 GB'],
+                               [Common::getHumanReadableBytes(pow(1024, 4)), '1 TB'],
+                               [Common::getHumanReadableBytes(pow(1024, 5)), '1 PB'],
+                               [Common::getHumanReadableBytes(pow(1024, 6)), '1 EB'],
+                               [Common::getHumanReadableBytes(pow(1024, 7)), '1 ZB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8)), '1 YB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5), '2.5 YB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, ''), '2.5YB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, '-'), '2.5-YB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, '++'), '2.5++YB'],
+                           ]);
+    }
+
     public function testDefaultEncoding()
     {
         $this->foreachSame(
