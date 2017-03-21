@@ -379,32 +379,29 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function testKillProcess()
     {
-//        /**
-//         * Infinite process
-//         */
-//        Common::executeInSystemAsync($this->getInfCommand());
-//
-//        sleep(1);
-//
-//        /**
-//         * Get pid of infinite process
-//         */
-//        $pid = trim(file_get_contents($this->getSyncFile()));
-//
-//        sleep(10);
-//
-//        echo "PID=" . $pid . "\n";
-//        echo(shell_exec('tasklist /nh'));
-//
-//        $this->assertTrue(Common::isProcessRunning($pid));
-//
-//        sleep(10);
-//
-//        $this->assertTrue(Common::isProcessRunning($pid));
-//
-//        Common::killProcess($pid);
-//
-//        $this->assertFalse(Common::isProcessRunning($pid));
+        /**
+         * Infinite process
+         */
+        Common::executeInSystemAsync($this->getInfCommand());
+
+        sleep(1);
+
+        /**
+         * Get pid of infinite process
+         */
+        $pid = trim(file_get_contents($this->getSyncFile()));
+
+        sleep(10);
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        sleep(10);
+
+        $this->assertTrue(Common::isProcessRunning($pid));
+
+        Common::killProcess($pid);
+
+        $this->assertFalse(Common::isProcessRunning($pid));
 
     }
 
