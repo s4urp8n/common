@@ -7,36 +7,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Test;
 
-    public function testKillProcess()
-    {
-        $command = 'php "' . dirname($this->getSyncFile()) . DIRECTORY_SEPARATOR . 'inf.php"';
-
-        /**
-         * Infinite process
-         */
-        Common::executeInSystemAsync($command);
-
-        sleep(1);
-
-        /**
-         * Get pid of infinite process
-         */
-        $pid = trim(file_get_contents($this->getSyncFile()));
-
-        sleep(20);
-
-        $this->assertTrue(Common::isProcessRunning($pid));
-
-        sleep(20);
-
-        $this->assertTrue(Common::isProcessRunning($pid));
-
-        Common::killProcess($pid);
-
-        $this->assertFalse(Common::isProcessRunning($pid));
-
-    }
-
     public function testDefaultEncoding()
     {
         $this->foreachSame(
@@ -338,6 +308,16 @@ class CommonTest extends PHPUnit\Framework\TestCase
         return "php " . escapeshellarg(realpath(__DIR__ . '/../sync.php'));
     }
 
+    protected function getInfCommand()
+    {
+        return 'php "' . dirname($this->getSyncFile()) . DIRECTORY_SEPARATOR . 'inf.php"';
+    }
+
+    protected function get10SecCommand()
+    {
+        return 'php "' . dirname($this->getSyncFile()) . DIRECTORY_SEPARATOR . '10sec.php"';
+    }
+
     protected function set0ToSync()
     {
         file_put_contents($this->getSyncFile(), "0");
@@ -371,6 +351,61 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         sleep(9);
         $this->assertSync1();
+    }
+
+    public function testExecuteAsyncInFile()
+    {
+        $file = __DIR__ . DIRECTORY_SEPARATOR . "async.txt";
+
+        if (file_exists($file)) {
+            unlink($file);
+        }
+
+        $this->assertFalse(file_exists($file));
+
+        Common::executeInSystemAsync($this->get10SecCommand(), $file);
+
+        sleep(15);
+
+        $this->assertTrue(file_exists($file));
+
+        $this->assertTrue(preg_match('/^\+{11}$/', file_get_contents($file)) === 1);
+
+        if (file_exists($file)) {
+            unlink($file);
+        }
+
+    }
+
+    public function testKillProcess()
+    {
+//        /**
+//         * Infinite process
+//         */
+//        Common::executeInSystemAsync($this->getInfCommand());
+//
+//        sleep(1);
+//
+//        /**
+//         * Get pid of infinite process
+//         */
+//        $pid = trim(file_get_contents($this->getSyncFile()));
+//
+//        sleep(10);
+//
+//        echo "PID=" . $pid . "\n";
+//        echo(shell_exec('tasklist /nh'));
+//
+//        $this->assertTrue(Common::isProcessRunning($pid));
+//
+//        sleep(10);
+//
+//        $this->assertTrue(Common::isProcessRunning($pid));
+//
+//        Common::killProcess($pid);
+//
+//        $this->assertFalse(Common::isProcessRunning($pid));
+
     }
 
 }
