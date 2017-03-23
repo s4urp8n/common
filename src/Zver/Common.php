@@ -130,10 +130,29 @@ namespace Zver {
              * Using in current (present) test (in this file) (here!)
              */
             if ($test) {
-                return dirname($calledFile) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
+                return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
 
-            return static::getCommonPath($calledFile, __DIR__) . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
+            $commonPart = static::getCommonPath($calledFile, __DIR__);
+
+            $currentVendor = mb_substr(__DIR__, mb_strlen($commonPart, Common::getDefaultEncoding()));
+            $currentVendor = mb_split(static::getSlashesRegexp(), $currentVendor)[0];
+
+            $calledVendor = mb_substr($calledFile, mb_strlen($commonPart, Common::getDefaultEncoding()));
+            $calledVendor = mb_split(static::getSlashesRegexp(), $calledVendor)[0];
+
+            if ($currentVendor == 'src') {
+                $calledVendor = '';
+            } else {
+                $calledVendor .= DIRECTORY_SEPARATOR;
+            }
+
+            return $commonPart . $calledVendor . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
+        }
+
+        protected static function getSlashesRegexp()
+        {
+            return '[' . preg_quote('\\') . preg_quote('/') . ']+';
         }
 
         /**
@@ -159,7 +178,21 @@ namespace Zver {
                 return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
             }
 
-            return static::getCommonPath($calledFile, __DIR__) . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
+            $commonPart = static::getCommonPath($calledFile, __DIR__);
+
+            $currentVendor = mb_substr(__DIR__, mb_strlen($commonPart, Common::getDefaultEncoding()));
+            $currentVendor = mb_split(static::getSlashesRegexp(), $currentVendor)[0];
+
+            $calledVendor = mb_substr($calledFile, mb_strlen($commonPart, Common::getDefaultEncoding()));
+            $calledVendor = mb_split(static::getSlashesRegexp(), $calledVendor)[0];
+
+            if ($currentVendor == 'src') {
+                $calledVendor = '';
+            } else {
+                $calledVendor .= DIRECTORY_SEPARATOR;
+            }
+
+            return $commonPart . $calledVendor . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
         }
 
         public static function getOSName()
