@@ -426,4 +426,71 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
+    protected static $testDireftoriesDepth = 5;
+    protected static $testExt = 'txt';
+
+    public function createTestDirectories()
+    {
+        $deepest = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, static::$testDireftoriesDepth, 1)) . DIRECTORY_SEPARATOR;
+
+        mkdir($deepest, 0777, true);
+        $this->assertTrue(file_exists($deepest));
+
+        for ($i = 1; $i <= static::$testDireftoriesDepth; $i++) {
+            $file = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, $i, 1)) . DIRECTORY_SEPARATOR . $i . '.' . static::$testExt;
+            file_put_contents($file, md5(rand(1, 9999)));
+            $this->assertTrue(file_exists($file));
+        }
+
+    }
+
+    public function getTestDirectoryPath()
+    {
+        return __DIR__ . DIRECTORY_SEPARATOR . '1';
+    }
+
+    public function testRemoveDirectory()
+    {
+        $this->createTestDirectories();
+
+        Common::removeDirectory($this->getTestDirectoryPath());
+
+        $deepest = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, static::$testDireftoriesDepth, 1)) . DIRECTORY_SEPARATOR;
+
+        $this->assertFalse(file_exists($deepest));
+        $this->assertFalse(is_dir($deepest));
+
+    }
+
+    public function testMakeEmptyDirectory()
+    {
+        $this->createTestDirectories();
+
+        Common::removeDirectoryContents($this->getTestDirectoryPath());
+
+        $this->assertTrue(is_dir($this->getTestDirectoryPath()));
+
+        $this->assertSame([], Common::getDirectoryContentRecursive($this->getTestDirectoryPath()));
+
+        $this->testRemoveDirectory();
+
+    }
+
+    public function testCreateDirectoryIfNotExists()
+    {
+        $this->assertFalse(file_exists($this->getTestDirectoryPath()));
+
+        Common::createDirectoryIfNotExists($this->getTestDirectoryPath());
+
+        $this->assertTrue(file_exists($this->getTestDirectoryPath()));
+
+        Common::createDirectoryIfNotExists($this->getTestDirectoryPath());
+
+        $this->assertTrue(file_exists($this->getTestDirectoryPath()));
+
+        rmdir($this->getTestDirectoryPath());
+
+        $this->assertFalse(file_exists($this->getTestDirectoryPath()));
+    }
+
 }

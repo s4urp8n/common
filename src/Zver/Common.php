@@ -383,5 +383,32 @@ namespace Zver {
             return $result . $spaceBefore . $sizes[$index];
         }
 
+        public static function createDirectoryIfNotExists($directory, $mode = 0777)
+        {
+            if (!is_dir($directory)) {
+                mkdir($directory, $mode, true);
+            }
+        }
+
+        public static function removeDirectory($directory, $removeSelf = true)
+        {
+            foreach (static::getDirectoryContent($directory) as $path) {
+                if (is_file($path)) {
+                    unlink($path);
+                } else {
+                    static::removeDirectory($path, true);
+                }
+            }
+
+            if ($removeSelf && is_dir($directory)) {
+                rmdir($directory);
+            }
+        }
+
+        public static function removeDirectoryContents($directory)
+        {
+            return static::removeDirectory($directory, false);
+        }
+
     }
 }
