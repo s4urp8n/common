@@ -18,16 +18,10 @@ namespace Zver\Package {
                                           '..',
                                       ])) . DIRECTORY_SEPARATOR;
 
-            $parts = array_values(array_filter(explode(DIRECTORY_SEPARATOR, $directory)));
+            $sep = preg_quote(DIRECTORY_SEPARATOR);
 
-            $partsCount = count($parts);
-
-            if (array_key_exists($partsCount - 3, $parts) && $parts[$partsCount - 3] == 'vendor') {
-                unset($parts[$partsCount - 3]);
-                unset($parts[$partsCount - 2]);
-                unset($parts[$partsCount - 1]);
-
-                $directory = implode(DIRECTORY_SEPARATOR, $parts) . DIRECTORY_SEPARATOR;
+            if (preg_match("#{$sep}vendor{$sep}[^{$sep}]+{$sep}[^{$sep}]+{$sep}$#i", $directory) === 1) {
+                $directory = realpath($directory . '..' . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . '..') . DIRECTORY_SEPARATOR;
             }
 
             return $directory . Common::stripBeginningSlashes(Common::replaceSlashesToPlatformSlashes($path));
