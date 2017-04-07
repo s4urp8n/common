@@ -129,6 +129,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                 class_exists('TestDir\TestClass'),
             ]
         );
+
     }
 
     public function testAutoloader2()
