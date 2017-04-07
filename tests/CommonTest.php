@@ -7,9 +7,14 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
-    public function testHelper()
+    public static function setUpBeforeClass()
     {
+        file_put_contents(static::getPackageDir('sync.txt'), 1, LOCK_EX);
+    }
 
+    public static function tearDownAfterClass()
+    {
+        static::setUpBeforeClass();
     }
 
     public function testHumanReadableBytes()
