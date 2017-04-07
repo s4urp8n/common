@@ -31,9 +31,7 @@ composer require zver/common
     * foreachFalse(array $values)
     * foreachSame(array $values)
     * foreachNotSame(array $values)
-*  \Zver\Package\Common
-    * getPackageFilePath($name)
-    * getPackageTestFilePath($name)
+    * getPackageDir($path='')
     
 
 Created using [Package template](https://github.com/s4urp8n/package-template)

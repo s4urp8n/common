@@ -5,7 +5,12 @@ use Zver\Common;
 class CommonTest extends PHPUnit\Framework\TestCase
 {
 
-    use \Zver\Package\Test;
+    use \Zver\Package\Helper;
+
+    public function testHelper()
+    {
+
+    }
 
     public function testHumanReadableBytes()
     {
@@ -97,11 +102,11 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    'с т р о к а',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(Common::getPackageTestFilePath('StringWin1251.txt')), 'Windows-1251'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackageDir('tests/files/StringWin1251.txt')), 'Windows-1251'),
                                    'строка',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(Common::getPackageTestFilePath('StringUTF-8.txt')), 'UTF-8'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackageDir('tests/files/StringUTF-8.txt')), 'UTF-8'),
                                    'строка',
                                ],
                            ]);
@@ -162,22 +167,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
                 class_exists('\TestDir\TestClass'),
             ]
         );
-    }
-
-    public function testPackageFile()
-    {
-        Common::registerAutoloadClassesFrom(Common::replaceSlashesToPlatformSlashes(__DIR__ . '/../autoloader'));
-
-        $gitKeep = 'Save files for your packages in this folder';
-        $gitTestKeep = 'Save files for your tests in this folder';
-
-        $this->assertSame(file_get_contents(\TestDir\TestClass::gitKeep('.gitkeep')), $gitKeep);
-        $this->assertSame(file_get_contents(\TestClass2::gitKeep('.gitkeep')), $gitKeep);
-        $this->assertSame(file_get_contents(Common::getPackageFilePath('.gitkeep')), $gitKeep);
-
-        $this->assertSame(file_get_contents(\TestDir\TestClass::gitTestKeep('.gitkeep')), $gitTestKeep);
-        $this->assertSame(file_get_contents(\TestClass2::gitTestKeep('.gitkeep')), $gitTestKeep);
-        $this->assertSame(file_get_contents(Common::getPackageTestFilePath('.gitkeep')), $gitTestKeep);
     }
 
     public function testIsOS()
@@ -247,9 +236,55 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
+    public function testStripSlashes()
+    {
+        $this->foreachSame([
+                               [
+                                   Common::stripBeginningSlashes('////path'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripBeginningSlashes('////path///'),
+                                   'path///',
+                               ],
+                               [
+                                   Common::stripBeginningSlashes('////path///\\'),
+                                   'path///\\',
+                               ],
+                               [
+                                   Common::stripBeginningSlashes('////\\\\\path'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripBeginningSlashes('////\\\\\path'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripBeginningSlashes('\\\\\path'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripEndingSlashes('path///'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripEndingSlashes('path\\\\'),
+                                   'path',
+                               ],
+                               [
+                                   Common::stripEndingSlashes('\\\path\\\\'),
+                                   '\\\path',
+                               ],
+                               [
+                                   Common::stripEndingSlashes('\\\path\\\\///'),
+                                   '\\\path',
+                               ],
+                           ]);
+    }
+
     public function testProcessRunning2()
     {
-        $command = 'php ' . Common::getPackageTestFilePath('inf.php');
+        $command = 'php ' . static::getPackageDir('inf.php');
 
         $descriptorspec = [
             0 => ["pipe", "r"],

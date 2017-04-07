@@ -2,8 +2,24 @@
 
 namespace Zver\Package {
 
-    trait Test
+    use Zver\Common;
+
+    trait Helper
     {
+
+        public static function getPackageDir($path = '')
+        {
+            $directory = realpath(implode(
+                                      DIRECTORY_SEPARATOR,
+                                      [
+                                          __DIR__,
+                                          '..',
+                                          '..',
+                                          '..',
+                                      ])) . DIRECTORY_SEPARATOR;
+
+            return $directory . Common::stripBeginningSlashes(Common::replaceSlashesToPlatformSlashes($path));
+        }
 
         public function foreachTrue(array $values)
         {

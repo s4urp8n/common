@@ -30,7 +30,22 @@ namespace Zver {
          */
         public static function replaceSlashesToPlatformSlashes($path)
         {
-            return mb_eregi_replace('[' . preg_quote('/') . preg_quote('\\') . ']+', DIRECTORY_SEPARATOR, $path);
+            return mb_eregi_replace('[' . static::getSlashesRegExp() . ']+', DIRECTORY_SEPARATOR, $path);
+        }
+
+        public static function stripBeginningSlashes($path)
+        {
+            return mb_eregi_replace('^[' . static::getSlashesRegExp() . ']+', '', $path);
+        }
+
+        public static function stripEndingSlashes($path)
+        {
+            return mb_eregi_replace('[' . static::getSlashesRegExp() . ']+$', '', $path);
+        }
+
+        protected function getSlashesRegExp()
+        {
+            return preg_quote('/') . preg_quote('\\');
         }
 
         /**
@@ -76,123 +91,6 @@ namespace Zver {
 
                 }
             });
-        }
-
-        /**
-         * Get common path of both path's
-         *
-         * @param $path1
-         * @param $path2
-         * @return string
-         */
-        public static function getCommonPath($path1, $path2)
-        {
-            $common = [];
-
-            $parts1 = explode(DIRECTORY_SEPARATOR, realpath(\Zver\Common::replaceSlashesToPlatformSlashes($path1)));
-            $parts2 = explode(DIRECTORY_SEPARATOR, realpath(\Zver\Common::replaceSlashesToPlatformSlashes($path2)));
-
-            foreach ($parts1 as $key => $value) {
-                if ($parts2[$key] == $value) {
-                    $common[] = $value;
-                } else {
-                    break;
-                }
-            }
-
-            $common = implode(DIRECTORY_SEPARATOR, $common);
-
-            if ($common !== DIRECTORY_SEPARATOR) {
-                $common = $common . DIRECTORY_SEPARATOR;
-            }
-
-            return $common;
-
-        }
-
-        /**
-         * Get full path to file in package tests files folder
-         *
-         * @param $name Name of file
-         * @return string Full path to file in package tests folder
-         */
-        public static function getPackageTestFilePath($name)
-        {
-            $calledFile = debug_backtrace()[0]['file'];
-            $calledFileName = pathinfo($calledFile, PATHINFO_FILENAME);
-
-            /**
-             * Test environment, using from phpunit testing class
-             */
-            $test = mb_substr($calledFileName, -4, null, \Zver\Common::getDefaultEncoding()) == 'Test';
-
-            /**
-             * Using in current (present) test (in this file) (here!)
-             */
-            if ($test) {
-                return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
-            }
-
-            $commonPart = static::getCommonPath($calledFile, __DIR__);
-
-            $currentVendor = mb_substr(__DIR__, mb_strlen($commonPart, Common::getDefaultEncoding()));
-            $currentVendor = mb_split(static::getSlashesRegexp(), $currentVendor)[0];
-
-            $calledVendor = mb_substr($calledFile, mb_strlen($commonPart, Common::getDefaultEncoding()));
-            $calledVendor = mb_split(static::getSlashesRegexp(), $calledVendor)[0];
-
-            if ($currentVendor == 'src') {
-                $calledVendor = '';
-            } else {
-                $calledVendor .= DIRECTORY_SEPARATOR;
-            }
-
-            return $commonPart . $calledVendor . 'tests' . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
-        }
-
-        protected static function getSlashesRegexp()
-        {
-            return '[' . preg_quote('\\') . preg_quote('/') . ']+';
-        }
-
-        /**
-         * Get full path to file in package files folder
-         *
-         * @param $name Name of file
-         * @return string Full path to file
-         */
-        public static function getPackageFilePath($name)
-        {
-            $calledFile = debug_backtrace()[0]['file'];
-            $calledFileName = pathinfo($calledFile, PATHINFO_FILENAME);
-
-            /**
-             * Test environment, using from phpunit testing class
-             */
-            $test = mb_substr($calledFileName, -4, null, \Zver\Common::getDefaultEncoding()) == 'Test';
-
-            /**
-             * Using in current (present) test (in this file) (here!)
-             */
-            if ($test) {
-                return realpath(dirname($calledFile) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
-            }
-
-            $commonPart = static::getCommonPath($calledFile, __DIR__);
-
-            $currentVendor = mb_substr(__DIR__, mb_strlen($commonPart, Common::getDefaultEncoding()));
-            $currentVendor = mb_split(static::getSlashesRegexp(), $currentVendor)[0];
-
-            $calledVendor = mb_substr($calledFile, mb_strlen($commonPart, Common::getDefaultEncoding()));
-            $calledVendor = mb_split(static::getSlashesRegexp(), $calledVendor)[0];
-
-            if ($currentVendor == 'src') {
-                $calledVendor = '';
-            } else {
-                $calledVendor .= DIRECTORY_SEPARATOR;
-            }
-
-            return $commonPart . $calledVendor . 'files' . DIRECTORY_SEPARATOR . \Zver\Common::replaceSlashesToPlatformSlashes($name);
         }
 
         public static function getOSName()
