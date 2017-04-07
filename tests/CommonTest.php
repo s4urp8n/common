@@ -9,7 +9,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public static function setUpBeforeClass()
     {
-        file_put_contents(static::getPackageDir('sync.txt'), 1, LOCK_EX);
+        file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
     }
 
     public static function tearDownAfterClass()
@@ -107,11 +107,11 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    'с т р о к а',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackageDir('tests/files/StringWin1251.txt')), 'Windows-1251'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringWin1251.txt')), 'Windows-1251'),
                                    'строка',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackageDir('tests/files/StringUTF-8.txt')), 'UTF-8'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringUTF-8.txt')), 'UTF-8'),
                                    'строка',
                                ],
                            ]);
@@ -290,7 +290,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function testProcessRunning2()
     {
-        $command = 'php ' . static::getPackageDir('inf.php');
+        $command = 'php ' . static::getPackagePath('inf.php');
 
         $descriptorspec = [
             0 => ["pipe", "r"],

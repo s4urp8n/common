@@ -7,7 +7,7 @@ namespace Zver\Package {
     trait Helper
     {
 
-        public static function getPackageDir($path = '')
+        public static function getPackagePath($path = '')
         {
             $directory = realpath(implode(
                                       DIRECTORY_SEPARATOR,
