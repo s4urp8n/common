@@ -43,7 +43,7 @@ namespace Zver {
             return mb_eregi_replace('[' . static::getSlashesRegExp() . ']+$', '', $path);
         }
 
-        protected function getSlashesRegExp()
+        protected static function getSlashesRegExp()
         {
             return preg_quote('/') . preg_quote('\\');
         }
