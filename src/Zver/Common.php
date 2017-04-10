@@ -288,24 +288,25 @@ namespace Zver {
             }
         }
 
-        public static function removeDirectory($directory, $removeSelf = true)
+        public static function removeDirectory($directory)
         {
-            foreach (static::getDirectoryContent($directory) as $path) {
-                if (is_file($path)) {
-                    unlink($path);
-                } else {
-                    static::removeDirectory($path, true);
-                }
-            }
+            clearstatcache();
+            if (is_dir($directory)) {
 
-            if ($removeSelf && is_dir($directory)) {
-                rmdir($directory);
+                $command = static::isWindowsOS()
+                    ? sprintf('rmdir /s /q "%s"', $directory)
+                    : sprintf('rm -rf "%s"', $directory);
+
+                shell_exec($command);
             }
         }
 
         public static function removeDirectoryContents($directory)
         {
-            return static::removeDirectory($directory, false);
+            clearstatcache();
+            static::removeDirectory($directory);
+            clearstatcache();
+            static::createDirectoryIfNotExists($directory);
         }
 
     }

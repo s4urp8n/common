@@ -492,14 +492,18 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function testRemoveDirectory()
     {
+        clearstatcache();
+
         $this->createTestDirectories();
+
+        $this->assertTrue(is_dir($this->getTestDirectoryPath()));
 
         Common::removeDirectory($this->getTestDirectoryPath());
 
-        $deepest = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, static::$testDireftoriesDepth, 1)) . DIRECTORY_SEPARATOR;
+        clearstatcache();
 
-        $this->assertFalse(file_exists($deepest));
-        $this->assertFalse(is_dir($deepest));
+        $this->assertFalse(file_exists($this->getTestDirectoryPath()));
+        $this->assertFalse(is_dir($this->getTestDirectoryPath()));
 
     }
 
@@ -507,30 +511,41 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
         $this->createTestDirectories();
 
-        Common::removeDirectoryContents($this->getTestDirectoryPath());
+        clearstatcache();
 
         $this->assertTrue(is_dir($this->getTestDirectoryPath()));
 
+        Common::removeDirectoryContents($this->getTestDirectoryPath());
+
+        clearstatcache();
+        $this->assertTrue(is_dir($this->getTestDirectoryPath()));
+
+        clearstatcache();
         $this->assertSame([], Common::getDirectoryContentRecursive($this->getTestDirectoryPath()));
 
-        $this->testRemoveDirectory();
+        clearstatcache();
+        Common::removeDirectory($this->getTestDirectoryPath());
 
     }
 
     public function testCreateDirectoryIfNotExists()
     {
+        clearstatcache();
         $this->assertFalse(file_exists($this->getTestDirectoryPath()));
 
         Common::createDirectoryIfNotExists($this->getTestDirectoryPath());
 
+        clearstatcache();
         $this->assertTrue(file_exists($this->getTestDirectoryPath()));
 
         Common::createDirectoryIfNotExists($this->getTestDirectoryPath());
 
+        clearstatcache();
         $this->assertTrue(file_exists($this->getTestDirectoryPath()));
 
         rmdir($this->getTestDirectoryPath());
 
+        clearstatcache();
         $this->assertFalse(file_exists($this->getTestDirectoryPath()));
     }
 
