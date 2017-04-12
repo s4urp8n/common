@@ -234,6 +234,65 @@ namespace Zver {
             return $output;
         }
 
+        /**
+         * @param     $command Command to execute
+         * @param int $timeout Second to kill script if it's not finished
+         * @return bool
+         */
+        public static function executeInSystemWithTimeout($command, $timeout = 30)
+        {
+
+            $startTime = time();
+
+            $descriptors = [
+                fopen('php://stdout', 'r'),
+                fopen('php://stdin', 'w'),
+                fopen('php://stderr', 'w'),
+            ];
+
+            $process = proc_open($command, $descriptors, $pipes);
+
+            if (is_resource($process)) {
+
+                $isRunning = function ($resource) {
+
+                    $status = proc_get_status($resource);
+
+                    if (!empty($status) && is_array($status)) {
+                        return $status['running'];
+                    }
+
+                    return false;
+                };
+
+                while ($isRunning($process)) {
+
+                    try {
+                        sleep(1);
+
+                        if (time() - $startTime > $timeout) {
+                            throw new \Exception('Timeout of execution reached!');
+                        }
+                    }
+                    catch (\Exception $e) {
+
+                        proc_terminate($process);
+
+                        return false;
+                    }
+
+                }
+
+                proc_close($process);
+
+                return true;
+
+            }
+
+            return false;
+
+        }
+
         public static function killProcess($pid)
         {
             if (static::isWindowsOS()) {
@@ -263,8 +322,11 @@ namespace Zver {
             }
         }
 
-        public static function getHumanReadableBytes($bytes, $spaceBefore = ' ')
-        {
+        public
+        static function getHumanReadableBytes(
+            $bytes,
+            $spaceBefore = ' '
+        ) {
 
             $sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
             $index = 0;
@@ -281,15 +343,20 @@ namespace Zver {
             return $result . $spaceBefore . $sizes[$index];
         }
 
-        public static function createDirectoryIfNotExists($directory, $mode = 0777)
-        {
+        public
+        static function createDirectoryIfNotExists(
+            $directory,
+            $mode = 0777
+        ) {
             if (!is_dir($directory)) {
                 mkdir($directory, $mode, true);
             }
         }
 
-        public static function removeDirectory($directory)
-        {
+        public
+        static function removeDirectory(
+            $directory
+        ) {
             clearstatcache();
             if (is_dir($directory)) {
 
@@ -301,8 +368,10 @@ namespace Zver {
             }
         }
 
-        public static function removeDirectoryContents($directory)
-        {
+        public
+        static function removeDirectoryContents(
+            $directory
+        ) {
             clearstatcache();
             static::removeDirectory($directory);
             clearstatcache();

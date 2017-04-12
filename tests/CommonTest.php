@@ -7,6 +7,41 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testExecuteWithTimeout()
+    {
+
+        $results = [];
+
+        $testFile = static::getSyncFile();
+
+        /**
+         * Normal executing
+         */
+        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15);
+        $results[] = file_get_contents($testFile, LOCK_EX);
+
+        /**
+         * Terminated execution
+         */
+        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 5);
+        $results[] = file_get_contents($testFile, LOCK_EX);
+        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 2);
+        $results[] = file_get_contents($testFile, LOCK_EX);
+
+        /**
+         * Normal executing
+         */
+        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15);
+        $results[] = file_get_contents($testFile, LOCK_EX);
+
+        print_r($results);
+
+    }
+
+    public function testFail(){
+        $this->fail('TEst ended');
+    }
+
     public static function setUpBeforeClass()
     {
         file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
