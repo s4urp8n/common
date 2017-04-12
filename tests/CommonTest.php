@@ -38,10 +38,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
-    public function testFail(){
-        $this->fail('TEst ended');
-    }
-
     public static function setUpBeforeClass()
     {
         file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
