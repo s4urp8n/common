@@ -234,58 +234,83 @@ namespace Zver {
             return $output;
         }
 
-        /**
-         * @param     $command Command to execute
-         * @param int $timeout Second to kill script if it's not finished
-         * @return bool
-         */
-        public static function executeInSystemWithTimeout($command, $timeout = 30)
+        public static function executeInSystemWithTimeout($command, $timeout = 30, &$output = null, &$exitcode = null)
         {
 
-            $startTime = time();
+            try {
 
-            $descriptors = [
-                fopen('php://stdout', 'r'),
-                fopen('php://stdin', 'w'),
-                fopen('php://stderr', 'w'),
-            ];
+                $descriptors = [
+                    ['pipe', 'r'],
+                    ['pipe', 'w'],
+                    ['pipe', 'w'],
+                ];
 
-            $process = proc_open($command, $descriptors, $pipes);
+                $startTime = time();
 
-            if (is_resource($process)) {
+                $handler = proc_open($command, $descriptors, $pipes);
 
-                $isRunning = function ($resource) {
+                $isRunning = function ($handler) {
+                    if (is_resource($handler)) {
 
-                    $status = proc_get_status($resource);
-
-                    if (!empty($status) && is_array($status)) {
-                        return $status['running'];
+                        $status = proc_get_status($handler);
+                        if (!empty($status)) {
+                            return $status['running'];
+                        }
                     }
 
                     return false;
                 };
 
-                while ($isRunning($process)) {
+                while ($isRunning($handler)) {
 
-                    try {
-                        sleep(1);
+                    usleep(10);
 
-                        if (time() - $startTime > $timeout) {
-                            throw new \Exception('Timeout of execution reached!');
+                    if (time() - $startTime > $timeout) {
+
+                        /**
+                         * Timeout reached
+                         */
+
+                        @fclose($pipes[0]);
+                        @fclose($pipes[1]);
+                        @fclose($pipes[2]);
+
+                        if (static::isWindowsOS()) {
+                            $status = proc_get_status($handler);
+                            static::killProcess($status['pid']);
+                        } else {
+                            proc_terminate($handler);
                         }
-                    }
-                    catch (\Exception $e) {
-
-                        proc_terminate($process);
 
                         return false;
                     }
 
                 }
 
-                proc_close($process);
+                /**
+                 * Process finished normally
+                 */
+                if (!is_null($output)) {
+                    $output = stream_get_contents($pipes[1]);
+                }
+
+                @fclose($pipes[0]);
+                @fclose($pipes[1]);
+                @fclose($pipes[2]);
+
+                if (is_null($exitcode)) {
+                    proc_close($handler);
+                } else {
+                    $exitcode = proc_close($handler);
+                }
 
                 return true;
+
+            }
+            catch (\Throwable $t) {
+
+            }
+            catch (\Exception $e) {
 
             }
 
@@ -296,7 +321,7 @@ namespace Zver {
         public static function killProcess($pid)
         {
             if (static::isWindowsOS()) {
-                static::executeInSystem('taskkill /F /s localhost /PID ' . $pid);
+                static::executeInSystem('taskkill /F /T /s localhost /PID ' . $pid . ' 2>&1');
             } else {
                 \posix_kill($pid, SIGKILL);
             }
@@ -309,7 +334,7 @@ namespace Zver {
                 $windowsCommand = 'start /b "async bg command" ' . $command;
 
                 if (!empty($outputFile)) {
-                    $windowsCommand .= ' > "' . $outputFile . '"';
+                    $windowsCommand .= ' > "' . $outputFile . '" 2>&1';
                 }
 
                 pclose(popen($windowsCommand, 'r'));
@@ -318,15 +343,12 @@ namespace Zver {
 
                 $output = empty($outputFile) ? '/dev/null' : $outputFile;
 
-                shell_exec($command . ' > ' . $output . ' &');
+                shell_exec($command . ' > ' . $output . ' 2>&1 &');
             }
         }
 
-        public
-        static function getHumanReadableBytes(
-            $bytes,
-            $spaceBefore = ' '
-        ) {
+        public static function getHumanReadableBytes($bytes, $spaceBefore = ' ')
+        {
 
             $sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
             $index = 0;
@@ -343,20 +365,15 @@ namespace Zver {
             return $result . $spaceBefore . $sizes[$index];
         }
 
-        public
-        static function createDirectoryIfNotExists(
-            $directory,
-            $mode = 0777
-        ) {
+        public static function createDirectoryIfNotExists($directory, $mode = 0777)
+        {
             if (!is_dir($directory)) {
                 mkdir($directory, $mode, true);
             }
         }
 
-        public
-        static function removeDirectory(
-            $directory
-        ) {
+        public static function removeDirectory($directory)
+        {
             clearstatcache();
             if (is_dir($directory)) {
 
@@ -368,10 +385,8 @@ namespace Zver {
             }
         }
 
-        public
-        static function removeDirectoryContents(
-            $directory
-        ) {
+        public static function removeDirectoryContents($directory)
+        {
             clearstatcache();
             static::removeDirectory($directory);
             clearstatcache();

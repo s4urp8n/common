@@ -17,30 +17,35 @@ class CommonTest extends PHPUnit\Framework\TestCase
         /**
          * Normal executing
          */
-        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15);
-        $results[] = file_get_contents($testFile, LOCK_EX);
-
+        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15));
+        $results[] = file_get_contents($testFile);
         /**
          * Terminated execution
          */
-        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 5);
-        $results[] = file_get_contents($testFile, LOCK_EX);
-        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 2);
-        $results[] = file_get_contents($testFile, LOCK_EX);
-
+        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 5));
+        $results[] = file_get_contents($testFile);
+        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 2));
+        $results[] = file_get_contents($testFile);
         /**
          * Normal executing
          */
-        Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15);
-        $results[] = file_get_contents($testFile, LOCK_EX);
+        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15));
+        $results[] = file_get_contents($testFile);
 
-        print_r($results);
+        $rightResult = $results[0];
+
+        $this->assertSame($results[0], $results[3]);
+        $this->assertNotSame($results[1], $results[2]);
+        $this->assertNotSame($results[0], $results[1]);
+        $this->assertNotSame($results[0], $results[2]);
 
     }
 
     public static function setUpBeforeClass()
     {
+        sleep(1);
         file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
+        sleep(1);
     }
 
     public static function tearDownAfterClass()
