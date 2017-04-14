@@ -240,9 +240,9 @@ namespace Zver {
             try {
 
                 $descriptors = [
-                    ['pipe', 'r'],
-                    ['pipe', 'w'],
-                    ['pipe', 'w'],
+                    fopen('php://stdin', 'r'),
+                    fopen('php://stdout', 'w'),
+                    fopen('php://stderr', 'w'),
                 ];
 
                 $startTime = time();
