@@ -247,7 +247,9 @@ namespace Zver {
 
                 $startTime = time();
 
-                $handler = proc_open($command, $descriptors, $pipes);
+                $handler = proc_open($command, $descriptors, $pipes, null, null, [
+                    'bypass_shell' => true,
+                ]);
 
                 $isRunning = function ($handler) {
                     if (is_resource($handler)) {
