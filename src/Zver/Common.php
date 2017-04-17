@@ -211,15 +211,21 @@ namespace Zver {
 
         public static function getDirectoryContentRecursive($directory)
         {
+
             $content = [];
 
-            foreach (static::getDirectoryContent($directory) as $path) {
-                if (is_file($path)) {
-                    $content[] = $path;
-                } else {
-                    $content[] = $path;
-                    $content = array_merge($content, static::getDirectoryContentRecursive($path));
-                }
+            clearstatcache(true);
+
+            if (is_dir($directory)) {
+
+                $directory = realpath($directory);
+
+                $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
+
+                $content = array_map(function (\SplFileInfo $value) {
+                    return $value->getRealPath();
+                }, iterator_to_array($iterator));
+
             }
 
             return static::sortFilesAndFolders($content);
@@ -234,15 +240,22 @@ namespace Zver {
             return $output;
         }
 
-        public static function executeInSystemWithTimeout($command, $timeout = 30, &$output = null, &$exitcode = null)
-        {
+        public static function executeInSystemWithTimeout(
+            $command,
+            $timeout = 30,
+            &$output,
+            &$exitcode
+        ) {
+
+            $output = '';
+            $exitcode = null;
 
             try {
 
                 $descriptors = [
-                    fopen('php://stdin', 'r'),
-                    fopen('php://stdout', 'w'),
-                    fopen('php://stderr', 'w'),
+                    ['pipe', 'r'],
+                    ['pipe', 'w'],
+                    ['pipe', 'w'],
                 ];
 
                 $startTime = time();
@@ -265,24 +278,24 @@ namespace Zver {
 
                 while ($isRunning($handler)) {
 
-                    usleep(10);
+                    usleep(100);
+
+                    $output .= fread($pipes[1], 1024);
 
                     if (time() - $startTime > $timeout) {
 
                         /**
                          * Timeout reached
                          */
-
                         @fclose($pipes[0]);
                         @fclose($pipes[1]);
                         @fclose($pipes[2]);
 
-                        if (static::isWindowsOS()) {
-                            $status = proc_get_status($handler);
-                            static::killProcess($status['pid']);
-                        } else {
-                            proc_terminate($handler);
-                        }
+                        $pid = proc_get_status($handler)['pid'];
+                        @proc_terminate($handler);
+                        static::killProcess($pid);
+
+                        $exitcode = -1;
 
                         return false;
                     }
@@ -292,19 +305,15 @@ namespace Zver {
                 /**
                  * Process finished normally
                  */
-                if (!is_null($output)) {
-                    $output = stream_get_contents($pipes[1]);
+                while (!feof($pipes[1])) {
+                    $output .= fread($pipes[1], 1024);
                 }
 
                 @fclose($pipes[0]);
                 @fclose($pipes[1]);
                 @fclose($pipes[2]);
 
-                if (is_null($exitcode)) {
-                    proc_close($handler);
-                } else {
-                    $exitcode = proc_close($handler);
-                }
+                $exitcode = proc_close($handler);
 
                 return true;
 
@@ -312,6 +321,7 @@ namespace Zver {
             catch (\Throwable $t) {
 
             }
+
             catch (\Exception $e) {
 
             }

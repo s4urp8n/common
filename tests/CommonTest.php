@@ -7,34 +7,92 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetDirectoryContent()
+    {
+        $this->foreachSame([
+                               [
+                                   Common::getDirectoryContent(__DIR__),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
+                                   ],
+                               ],
+                               [
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                   ],
+                               ],
+                           ]);
+    }
+
+    public function testGetDirectoryContentRecursive()
+    {
+        $this->foreachSame([
+                               [
+                                   Common::getDirectoryContentRecursive(__DIR__),
+                                   [
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                   ],
+                               ],
+                               [
+                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
+                               ],
+                           ]);
+    }
+
     public function testExecuteWithTimeout()
     {
 
         $results = [];
-
-        $testFile = static::getSyncFile();
+        $times = [];
 
         /**
          * Normal executing
          */
-        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15));
-        $results[] = file_get_contents($testFile);
+
+        $startTime = time();
+        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php', 20, $output, $exitcode));
+        $results[] = $output;
+        $times[] = time() - $startTime;
+
         /**
          * Terminated execution
          */
-        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 5));
-        $results[] = file_get_contents($testFile);
-        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 2));
-        $results[] = file_get_contents($testFile);
+        $startTime = time();
+        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php', 5, $output, $exitcode));
+        $results[] = $output;
+        $times[] = time() - $startTime;
+
+        $startTime = time();
+        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php', 2, $output, $exitcode));
+        $results[] = $output;
+        $times[] = time() - $startTime;
+
         /**
          * Normal executing
          */
-        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php > ' . $testFile, 15));
-        $results[] = file_get_contents($testFile);
+        $startTime = time();
+        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php', 20, $output, $exitcode));
+        $results[] = $output;
+        $times[] = time() - $startTime;
 
-        $rightResult = $results[0];
+        $rightResult = '++++++++++';
 
         $this->assertSame($results[0], $results[3]);
+        $this->assertSame($results[0], $rightResult);
         $this->assertNotSame($results[1], $results[2]);
         $this->assertNotSame($results[0], $results[1]);
         $this->assertNotSame($results[0], $results[2]);
@@ -350,52 +408,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
-    public function testGetDirectoryContent()
-    {
-        $this->foreachSame([
-                               [
-                                   Common::getDirectoryContent(__DIR__),
-                                   [
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
-                                   ],
-                               ],
-                               [
-                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
-                                   [
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
-                                   ],
-                               ],
-                           ]);
-    }
-
-    public function testGetDirectoryContentRecursive()
-    {
-        $this->foreachSame([
-                               [
-                                   Common::getDirectoryContentRecursive(__DIR__),
-                                   [
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'bootstrap.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . '.gitkeep',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
-                                   ],
-                               ],
-                               [
-                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
-                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
-                               ],
-                           ]);
-    }
-
     protected function getSyncFile()
     {
         return realpath(__DIR__ . '/../sync.txt');
@@ -467,7 +479,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         $this->assertTrue(file_exists($file));
 
-        $this->assertTrue(preg_match('/^\+{11}$/', file_get_contents($file)) === 1);
+        $this->assertTrue(preg_match('/^\+{10}$/', file_get_contents($file)) === 1);
 
         if (file_exists($file)) {
             unlink($file);
