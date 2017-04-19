@@ -7,6 +7,84 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testMoveDirectory()
+    {
+
+        $dir1 = __DIR__ . DIRECTORY_SEPARATOR . '1' . DIRECTORY_SEPARATOR;
+
+        $file1 = $dir1 . 'file1.txt';
+
+        $dir2 = __DIR__ . DIRECTORY_SEPARATOR . '2' . DIRECTORY_SEPARATOR;
+
+        Common::removeDirectory($dir1);
+        Common::removeDirectory($dir2);
+
+        clearstatcache(true);
+
+        $this->assertFalse(is_dir($dir1));
+        $this->assertFalse(is_dir($dir2));
+
+        mkdir($dir1);
+        touch($file1);
+
+        $this->assertTrue(is_dir($dir1));
+        $this->assertTrue(file_exists($file1));
+
+        $this->assertFalse(is_dir($dir2));
+
+        Common::move($dir1, $dir2);
+
+        clearstatcache(true);
+
+        $this->assertFalse(is_dir($dir1));
+        $this->assertFalse(file_exists($file1));
+        $this->assertTrue(is_dir($dir2));
+        $this->assertTrue(file_exists($dir2 . 'file1.txt'));
+
+        Common::removeDirectory($dir1);
+        Common::removeDirectory($dir2);
+
+        clearstatcache(true);
+
+        $this->assertFalse(is_dir($dir1));
+        $this->assertFalse(is_dir($dir2));
+
+    }
+
+    public function testFileMove()
+    {
+        $dir = __DIR__ . DIRECTORY_SEPARATOR;
+
+        $file1 = $dir . 'file1.txt';
+        $file2 = $dir . 'file2.txt';
+
+        @unlink($file1);
+        @unlink($file2);
+
+        clearstatcache(true);
+
+        $this->assertFalse(file_exists($file1));
+        $this->assertFalse(file_exists($file2));
+
+        touch($file1);
+
+        clearstatcache(true);
+        $this->assertTrue(file_exists($file1));
+        $this->assertFalse(file_exists($file2));
+
+        Common::move($file1, $file2);
+
+        clearstatcache(true);
+        $this->assertFalse(file_exists($file1));
+        $this->assertTrue(file_exists($file2));
+
+        clearstatcache(true);
+
+        @unlink($file1);
+        @unlink($file2);
+
+    }
+
     public function testGetDirectoryContent()
     {
         $this->foreachSame([

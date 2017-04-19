@@ -405,5 +405,30 @@ namespace Zver {
             static::createDirectoryIfNotExists($directory);
         }
 
+        public static function move($source, $destination)
+        {
+
+            $source = static::stripEndingSlashes($source);
+            $destination = static::stripEndingSlashes($destination);
+
+            clearstatcache(true);
+
+            if (file_exists($source) || is_dir($source)) {
+
+                $command = 'move /Y ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
+
+                if (static::isLinuxOS()) {
+                    $command = 'mv -f ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
+                }
+
+                exec($command, $output, $exitCode);
+
+                return $exitCode == 0;
+
+            }
+
+            return false;
+        }
+
     }
 }
