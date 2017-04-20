@@ -421,7 +421,7 @@ namespace Zver {
                     $command = 'mv -f ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
                 }
 
-                exec($command, $output, $exitCode);
+                @exec($command . ' 2>&1', $output, $exitCode);
 
                 return $exitCode == 0;
 
