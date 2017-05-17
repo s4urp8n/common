@@ -7,6 +7,14 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testCombinations()
+    {
+
+        $this->assertTrue(count(Common::getAllCombinations(['a', 'b', 'c'])) == 15);
+        $this->assertTrue(count(Common::getAllCombinations(['a', 'b', 'c', 'f'])) == 64);
+
+    }
+
     public function testMoveDirectory()
     {
 

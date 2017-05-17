@@ -430,5 +430,100 @@ namespace Zver {
             return false;
         }
 
+        public static function getAllCombinations(array $array)
+        {
+            $current = $combinations = [];
+            $count = count($array);
+            $max = pow(2, $count) - 1;
+
+            $presentations = [];
+
+            for ($i = 1; $i <= $max; $i++) {
+
+                $presentation = decbin($i);
+
+                while (strlen($presentation) < $count) {
+                    $presentation = '0' . $presentation;
+                }
+
+                $current = [];
+
+                for ($j = 0; $j < $count; $j++) {
+                    if ($presentation[$j] == '1') {
+                        $current[] = $array[$j];
+                    }
+                }
+
+                $presentations[] = $current;
+
+            }
+
+            foreach ($presentations as $presentation) {
+
+                $presentationCount = count($presentation);
+
+                if ($presentationCount == 1) {
+                    $combinations[] = $presentation;
+                } else {
+
+                    $maxPosition = str_repeat($presentationCount - 1, $presentationCount);
+
+                    while ($maxPosition > 0) {
+
+                        $positions = $maxPosition;
+                        while (strlen($positions) < $presentationCount) {
+                            $positions = '0' . $positions;
+                        }
+
+                        $positions = str_split($positions);
+
+                        /**
+                         * Now we must ensure that all positions is unique
+                         */
+                        $positionsCounts = array_count_values($positions);
+                        rsort($positionsCounts);
+
+                        $unique = ($positionsCounts[0] == 1);
+
+                        if ($unique) {
+
+                            /**
+                             * Now we must ensure that all position is less or equals $presentationCount-1
+                             */
+                            $valid = true;
+
+                            foreach ($positions as $p) {
+                                if ($p > $presentationCount - 1) {
+                                    $valid = false;
+                                    break;
+                                }
+                            }
+
+                            if ($valid) {
+
+                                $combination = [];
+
+                                foreach ($positions as $key => $position) {
+                                    $combination[$position] = $presentation[$key];
+                                }
+
+                                ksort($combination);
+
+                                $combinations[] = $combination;
+
+                            }
+                        }
+
+                        $maxPosition--;
+                    }
+
+                }
+
+            }
+
+            return $combinations;
+
+        }
+
     }
 }
