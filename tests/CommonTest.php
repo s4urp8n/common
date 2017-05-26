@@ -7,6 +7,19 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testReadFileByLines()
+    {
+
+        $count = 0;
+
+        Common::readFileByLines(__FILE__, function ($line) use (&$count) {
+            $count++;
+        });
+
+        $this->assertTrue($count > 100);
+
+    }
+
     public function testCombinations()
     {
 

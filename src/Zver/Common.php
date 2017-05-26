@@ -525,5 +525,22 @@ namespace Zver {
 
         }
 
+        public static function readFileByLines($path, callable $callback)
+        {
+
+            $fh = fopen($path, 'r');
+
+            while (!feof($fh)) {
+
+                $line = fgets($fh);
+
+                call_user_func($callback, $line);
+
+            }
+
+            fclose($fh);
+
+        }
+
     }
 }
