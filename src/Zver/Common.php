@@ -525,6 +525,17 @@ namespace Zver {
 
         }
 
+        public static function getFileExtension($filename)
+        {
+            $lastDot = mb_strrpos($filename, '.', false, static::getDefaultEncoding());
+
+            if ($lastDot !== false) {
+                return mb_substr($filename, $lastDot + 1, null, static::getDefaultEncoding());
+            }
+
+            return false;
+        }
+
         public static function readFileByLines($path, callable $callback)
         {
 

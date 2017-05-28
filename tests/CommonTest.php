@@ -7,16 +7,39 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetFileExtension()
+    {
+        $tests = [
+            ''                                                            => false,
+            '\file'                                                       => false,
+            '\file.exe'                                                   => 'exe',
+            'file.zip'                                                    => 'zip',
+            '\file.exec'                                                  => 'exec',
+            '\file.gitkeep'                                               => 'gitkeep',
+            '.gitkeep'                                                    => 'gitkeep',
+            '..gitkeep'                                                   => 'gitkeep',
+            '.img.gitkeep'                                                => 'gitkeep',
+            '.rar.img.gitkeep'                                            => 'gitkeep',
+            'sas/adad/fefef/ttt.rar.fd/efef.wfdwd/.dwddwd.dwdwd/file.exe' => 'exe',
+        ];
+
+        foreach ($tests as $file => $ext) {
+            $this->assertSame(Common::getFileExtension($file), $ext);
+        }
+    }
+
     public function testReadFileByLines()
     {
 
-        $count = 0;
+        $string = '';
 
-        Common::readFileByLines(__FILE__, function ($line) use (&$count) {
-            $count++;
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+
+        Common::readFileByLines($testFile, function ($line) use (&$string) {
+            $string .= trim($line);
         });
 
-        $this->assertTrue($count > 100);
+        $this->assertSame($string, '0123456789');
 
     }
 
