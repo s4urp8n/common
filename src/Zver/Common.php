@@ -536,17 +536,80 @@ namespace Zver {
             return false;
         }
 
-        public static function readFileByLines($path, callable $callback)
+        public static function readFileByLines($path, callable $callback, $linesLimit = null)
         {
+
+            $currentLine = -1;
 
             $fh = fopen($path, 'r');
 
             while (!feof($fh)) {
 
-                $line = fgets($fh);
+                $line = trim(fgets($fh), "\r\n");
+
+                $currentLine++;
 
                 call_user_func($callback, $line);
 
+                if (!is_null($linesLimit) && $currentLine >= $linesLimit - 1) {
+                    break;
+                }
+
+            }
+
+            fclose($fh);
+
+        }
+
+        public static function readFileByLinesFromEnd($path, callable $callback, $linesLimit = null)
+        {
+
+            $lines = [];
+
+            $fh = fopen($path, "r");
+
+            /**
+             * Seek to the end of file
+             */
+            fseek($fh, 0, SEEK_END);
+
+            $min = 0;
+            $max = ftell($fh);
+
+            $offset = null;
+
+            $iteration = 0;
+
+            $lineCount = 0;
+
+            for ($i = $max - 1; $i >= 0; $i--) {
+
+                fseek($fh, $i, SEEK_SET);
+
+                $char = fread($fh, 1);
+
+                if ($char === "\r") {
+                    continue;
+                }
+
+                if ($char === "\n") {
+                    $lineCount++;
+                    if (!is_null($linesLimit) && $lineCount == $linesLimit) {
+                        break;
+                    }
+                    continue;
+                }
+
+                if (!array_key_exists($lineCount, $lines)) {
+                    $lines[$lineCount] = '';
+                }
+
+                $lines[$lineCount] = $char . $lines[$lineCount];
+
+            }
+
+            foreach ($lines as $line) {
+                call_user_func($callback, $line);
             }
 
             fclose($fh);

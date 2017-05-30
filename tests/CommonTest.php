@@ -7,6 +7,108 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testReadFileByLinesFromEnd()
+    {
+
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+        $emptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt';
+        $oneFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt';
+
+        $string = '';
+
+        $callback = function ($line) use (&$string) {
+            $string .= $line;
+        };
+
+        $testData = [
+            $testFile  => [
+                [null, ' 9876 54а это  русский текст 2this is not a test0'],
+                [999999999, ' 9876 54а это  русский текст 2this is not a test0'],
+                [6, ' 9876 54'],
+                [8, ' 9876 54а это  русский текст'],
+                [9, ' 9876 54а это  русский текст 2'],
+                [10, ' 9876 54а это  русский текст 2this is not a test'],
+            ],
+            $emptyFile => [
+                [null, ''],
+                [6, ''],
+                [8, ''],
+                [8999999, ''],
+            ],
+            $oneFile   => [
+                [null, ' здесь всего одна  строка'],
+                [1, ' здесь всего одна  строка'],
+                [6, ' здесь всего одна  строка'],
+                [8, ' здесь всего одна  строка'],
+                [8999999, ' здесь всего одна  строка'],
+            ],
+        ];
+
+        foreach ($testData as $file => $test) {
+
+            foreach ($test as $data) {
+
+                $string = '';
+
+                Common::readFileByLinesFromEnd($file, $callback, $data[0]);
+
+                $this->assertSame($data[1], $string);
+            }
+
+        }
+
+    }
+
+    public function testReadFileByLines()
+    {
+
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+        $emptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt';
+        $oneFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt';
+
+        $string = '';
+
+        $callback = function ($line) use (&$string) {
+            $string .= $line;
+        };
+
+        $testData = [
+            $testFile  => [
+                [null, '0this is not a test 2а это  русский текст4 5678 9'],
+                [9999999999, '0this is not a test 2а это  русский текст4 5678 9'],
+                [6, '0this is not a test 2а это  русский текст4'],
+                [8, '0this is not a test 2а это  русский текст4 56'],
+            ],
+            $emptyFile => [
+                [null, ''],
+                [6, ''],
+                [8, ''],
+                [8999999, ''],
+            ],
+            $oneFile   => [
+                [null, ' здесь всего одна  строка'],
+                [1, ' здесь всего одна  строка'],
+                [6, ' здесь всего одна  строка'],
+                [8, ' здесь всего одна  строка'],
+                [8999999, ' здесь всего одна  строка'],
+            ],
+        ];
+
+        foreach ($testData as $file => $test) {
+
+            foreach ($test as $data) {
+
+                $string = '';
+
+                Common::readFileByLines($file, $callback, $data[0]);
+
+                $this->assertSame($data[1], $string);
+            }
+
+        }
+
+    }
+
     public function testGetFileExtension()
     {
         $tests = [
@@ -19,7 +121,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
             '.gitkeep'                                                    => 'gitkeep',
             '..gitkeep'                                                   => 'gitkeep',
             '.img.gitkeep'                                                => 'gitkeep',
-            '.rar.img.gitkeep'                                            => 'gitkeep',
+            '.ra.img.gitkeep'                                             => 'gitkeep',
             'sas/adad/fefef/ttt.rar.fd/efef.wfdwd/.dwddwd.dwdwd/file.exe' => 'exe',
         ];
 
@@ -28,27 +130,10 @@ class CommonTest extends PHPUnit\Framework\TestCase
         }
     }
 
-    public function testReadFileByLines()
-    {
-
-        $string = '';
-
-        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
-
-        Common::readFileByLines($testFile, function ($line) use (&$string) {
-            $string .= trim($line);
-        });
-
-        $this->assertSame($string, '0123456789');
-
-    }
-
     public function testCombinations()
     {
-
         $this->assertTrue(count(Common::getAllCombinations(['a', 'b', 'c'])) == 15);
         $this->assertTrue(count(Common::getAllCombinations(['a', 'b', 'c', 'f'])) == 64);
-
     }
 
     public function testMoveDirectory()
@@ -145,7 +230,9 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
                                    [
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                    ],
@@ -165,7 +252,9 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                    ],
@@ -251,7 +340,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                [Common::getHumanReadableBytes(pow(1024, 8)), '1 YB'],
                                [Common::getHumanReadableBytes(pow(1024, 8) * 2.5), '2.5 YB'],
                                [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, ''), '2.5YB'],
-                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, '-'), '2.5-YB'],
+                               [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, ' - '), '2.5 - YB'],
                                [Common::getHumanReadableBytes(pow(1024, 8) * 2.5, '++'), '2.5++YB'],
                            ]);
     }
