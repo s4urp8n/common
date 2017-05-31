@@ -577,10 +577,17 @@ namespace Zver {
             $max = ftell($fh);
 
             $offset = null;
-
-            $iteration = 0;
-
+            $prevChar = null;
             $lineCount = 0;
+
+            $placeChar = function ($char) use (&$lines, &$lineCount) {
+
+                if (!array_key_exists($lineCount, $lines)) {
+                    $lines[$lineCount] = '';
+                }
+
+                $lines[$lineCount] = $char . $lines[$lineCount];
+            };
 
             for ($i = $max - 1; $i >= 0; $i--) {
 
@@ -593,18 +600,25 @@ namespace Zver {
                 }
 
                 if ($char === "\n") {
+
+                    if ($prevChar === "\n") {
+                        $placeChar('');
+                    }
+
                     $lineCount++;
+
                     if (!is_null($linesLimit) && $lineCount == $linesLimit) {
                         break;
                     }
+
+                    $prevChar = $char;
+
                     continue;
                 }
 
-                if (!array_key_exists($lineCount, $lines)) {
-                    $lines[$lineCount] = '';
-                }
+                $placeChar($char);
 
-                $lines[$lineCount] = $char . $lines[$lineCount];
+                $prevChar = $char;
 
             }
 
@@ -616,5 +630,32 @@ namespace Zver {
 
         }
 
+        public static function getTimestampMicrotime()
+        {
+            return number_format(microtime(true), 10, '', '');
+        }
+
+        public static function getLastFileLines($path, $linesCount)
+        {
+            $lines = [];
+
+            static::readFileByLinesFromEnd($path, function ($line) use (&$lines) {
+                $lines[] = $line;
+            }, $linesCount);
+
+            return implode(PHP_EOL, array_reverse($lines));
+        }
+
+        public static function getFirstFileLines($path, $linesCount)
+        {
+            $lines = [];
+
+            static::readFileByLines($path, function ($line) use (&$lines) {
+                $lines[] = $line;
+            }, $linesCount);
+
+            return implode(PHP_EOL, $lines);
+        }
     }
+
 }

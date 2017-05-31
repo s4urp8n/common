@@ -7,6 +7,89 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testFirstLastFileLines()
+    {
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+        $emptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt';
+
+        $tests = [
+            'first' => [
+                [
+                    $testFile,
+                    4,
+                    '0' . PHP_EOL .
+                    'this is not a test' . PHP_EOL .
+                    ' 2' . PHP_EOL .
+                    'а это  русский текст',
+                ],
+                [
+                    $emptyFile,
+                    4,
+                    '',
+                ],
+            ],
+            'last'  => [
+                [
+                    $testFile,
+                    4,
+                    '6' . PHP_EOL .
+                    '7' . PHP_EOL .
+                    '8' . PHP_EOL .
+                    ' 9',
+                ],
+                [
+                    $emptyFile,
+                    4,
+                    '',
+                ],
+                [
+                    $testFile,
+                    8,
+                    'а это  русский текст' . PHP_EOL .
+                    PHP_EOL .
+                    '4' . PHP_EOL .
+                    ' 5' . PHP_EOL .
+                    '6' . PHP_EOL .
+                    '7' . PHP_EOL .
+                    '8' . PHP_EOL .
+                    ' 9',
+                ],
+            ],
+        ];
+
+        foreach ($tests as $testMethod => $testData) {
+            foreach ($testData as $test) {
+
+                $result = '';
+
+                if ($testMethod == 'first') {
+                    $result = Common::getFirstFileLines($test[0], $test[1]);
+                } else {
+                    $result = Common::getLastFileLines($test[0], $test[1]);
+                }
+
+                $this->assertSame($result, $test[2]);
+            }
+
+        }
+
+    }
+
+    public function testMicrotime()
+    {
+
+        $timestamps = [];
+
+        for ($i = 0; $i < 300; $i++) {
+            $timestamp = Common::getTimestampMicrotime();
+            $this->assertTrue(is_numeric($timestamp));
+            $timestamps[] = $timestamp;
+        }
+
+        $this->assertSame($timestamps, array_unique($timestamps));
+
+    }
+
     public function testReadFileByLinesFromEnd()
     {
 
