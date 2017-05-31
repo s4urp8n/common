@@ -70,7 +70,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
                 $this->assertSame($result, $test[2]);
             }
-
         }
 
     }
@@ -610,8 +609,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
         $pid = getmypid();
 
-        $otherPid = getmypid() . rand(111, 999) . rand(111, 999);
 
+        $otherPid = getmypid() . rand(111, 999) . rand(111, 999);
         if (Common::isLinuxOS()) {
             $this->assertRegexp('/linux/i', Common::getOSName());
             $this->assertFalse(Common::isWindowsOS());
