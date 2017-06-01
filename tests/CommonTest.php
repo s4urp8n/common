@@ -7,6 +7,67 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testCopyDirectory()
+    {
+
+        clearstatcache(true);
+
+        $testsDirectory = __DIR__ . DIRECTORY_SEPARATOR;
+
+        $copyDirectory = $testsDirectory . 'copy' . DIRECTORY_SEPARATOR;
+
+        Common::removeDirectory($copyDirectory);
+
+        $filesDir = $testsDirectory . 'files' . DIRECTORY_SEPARATOR;
+
+        $baseNameArray = function (array $paths) {
+            return array_map(function ($path) {
+                return basename($path);
+            }, $paths);
+        };
+
+        clearstatcache(true);
+        $this->assertFalse(is_dir($copyDirectory));
+
+        Common::copy($filesDir, $copyDirectory);
+
+        clearstatcache(true);
+        $this->assertTrue(is_dir($copyDirectory));
+
+        $this->assertSame(
+            $baseNameArray(Common::getDirectoryContentRecursive($copyDirectory)),
+            $baseNameArray(Common::getDirectoryContentRecursive($filesDir))
+        );
+
+        Common::removeDirectory($copyDirectory);
+
+    }
+
+    public function testCopyFile()
+    {
+
+        $testsDirectory = __DIR__ . DIRECTORY_SEPARATOR;
+
+        $classesDir = $testsDirectory . 'classes' . DIRECTORY_SEPARATOR;
+        $filesDir = $testsDirectory . 'files' . DIRECTORY_SEPARATOR;
+
+        $source = $filesDir . 'lines.txt';
+        $destination = $classesDir . 'lines.txt';
+
+        @unlink($destination);
+
+        $this->assertFalse(file_exists($destination));
+
+        $this->assertTrue(Common::copy($source, $classesDir));
+
+        $this->assertTrue(file_exists($destination));
+
+        $this->assertSame(md5_file($source), md5_file($destination));
+
+        @unlink($destination);
+
+    }
+
     public function testFirstLastFileLines()
     {
         $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
@@ -84,8 +145,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
             $this->assertTrue(is_numeric($timestamp));
             $timestamps[] = $timestamp;
         }
-
-        $this->assertSame($timestamps, array_unique($timestamps));
 
     }
 
@@ -608,7 +667,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
     public function testProcessRunning()
     {
         $pid = getmypid();
-
 
         $otherPid = getmypid() . rand(111, 999) . rand(111, 999);
         if (Common::isLinuxOS()) {

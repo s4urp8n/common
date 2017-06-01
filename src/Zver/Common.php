@@ -341,21 +341,21 @@ namespace Zver {
 
         public static function executeInSystemAsync($command, $outputFile = null)
         {
+
+            if (is_null($outputFile)) {
+                $outputFile = static::isWindowsOS() ? 'nul' : '/dev/null';
+            }
+
             if (static::isWindowsOS()) {
 
                 $windowsCommand = 'start /b "async bg command" ' . $command;
 
-                if (!empty($outputFile)) {
-                    $windowsCommand .= ' > "' . $outputFile . '" 2>&1';
-                }
+                $windowsCommand .= ' > "' . $outputFile . '" 2>&1';
 
                 pclose(popen($windowsCommand, 'r'));
 
             } else {
-
-                $output = empty($outputFile) ? '/dev/null' : $outputFile;
-
-                shell_exec($command . ' > ' . $output . ' 2>&1 &');
+                shell_exec($command . ' > ' . $outputFile . ' 2>&1 &');
             }
         }
 
@@ -386,23 +386,84 @@ namespace Zver {
 
         public static function removeDirectory($directory)
         {
-            clearstatcache();
+            clearstatcache(true);
+
             if (is_dir($directory)) {
 
                 $command = static::isWindowsOS()
                     ? sprintf('rmdir /s /q "%s"', $directory)
                     : sprintf('rm -rf "%s"', $directory);
 
-                shell_exec($command);
+                @exec($command . ' 2>&1', $output, $exitCode);
+
+                return $exitCode == 0;
             }
+
+            return false;
+        }
+
+        /**
+         * Remove file or directory
+         *
+         * @param $path
+         * @return bool
+         */
+        public static function remove($path)
+        {
+            clearstatcache(true);
+
+            if (is_file($path)) {
+                return unlink($path);
+            } elseif (is_dir($path)) {
+                return static::removeDirectory($path);
+            }
+
         }
 
         public static function removeDirectoryContents($directory)
         {
-            clearstatcache();
+            clearstatcache(true);
             static::removeDirectory($directory);
-            clearstatcache();
+            clearstatcache(true);
             static::createDirectoryIfNotExists($directory);
+        }
+
+        /**
+         * Copy fiel or directory to specified directory
+         *
+         * @param $source
+         * @param $destinationDirectory
+         * @return bool
+         */
+        public static function copy($source, $destinationDirectory)
+        {
+
+            if (file_exists($source)) {
+
+                if (is_dir($source)) {
+
+                    $source = realpath($source) . DIRECTORY_SEPARATOR;
+
+                    if (static::isWindowsOS()) {
+                        $source .= '*';
+                    }
+
+                }
+
+                clearstatcache(true);
+
+                $command = sprintf('xcopy "%s" "%s" /Q /Y', $source, $destinationDirectory);
+
+                if (static::isLinuxOS()) {
+                    $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source, $destinationDirectory);
+                }
+
+                @exec($command . ' 2>&1', $output, $exitCode);
+
+                return $exitCode == 0;
+            }
+
+            return false;
         }
 
         public static function move($source, $destination)
@@ -632,7 +693,12 @@ namespace Zver {
 
         public static function getTimestampMicrotime()
         {
-            return number_format(microtime(true), 10, '', '');
+            return number_format(
+                microtime(true),
+                20,
+                '',
+                ''
+            );
         }
 
         public static function getLastFileLines($path, $linesCount)
