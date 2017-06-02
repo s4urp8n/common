@@ -639,47 +639,15 @@ namespace Zver {
 
         public static function readFileByLinesFromEnd($path, callable $callback, $linesLimit = null)
         {
+
             $lines = [];
             $fh = fopen($path, "r");
             fseek($fh, 0, SEEK_END);
             $min = 0;
             $max = ftell($fh);
-            $offset = null;
-            $prevChar = null;
+
             $lineCount = 0;
-
-            $placeChar = function ($char) use (&$lines, &$lineCount) {
-                if (!array_key_exists($lineCount, $lines)) {
-                    $lines[$lineCount] = '';
-                }
-                $lines[$lineCount] = $char . $lines[$lineCount];
-            };
-
-            $called = [];
-
-            $call = function ($end = false) use (&$lines, &$callback, &$lineCount, &$called) {
-
-                $callbackResult = null;
-
-                $callIndex = count($lines) - 2;
-
-                if ($end) {
-
-                    if (!empty($lines)) {
-                        $callbackResult = call_user_func($callback, $lines[$callIndex + 1]);
-                    }
-
-                } elseif (array_key_exists($callIndex, $lines) && !in_array($callIndex, $called)) {
-
-                    $called[] = $callIndex;
-
-                    $callbackResult = call_user_func($callback, $lines[$callIndex]);
-
-                }
-
-                return $callbackResult;
-
-            };
+            $currentLine = '';
 
             for ($i = $max - 1; $i >= 0; $i--) {
 
@@ -687,33 +655,43 @@ namespace Zver {
                 $char = fread($fh, 1);
 
                 if ($char === "\r") {
-
                     continue;
-
-                } elseif ($char === "\n") {
-
-                    if ($prevChar === "\n") {
-                        $placeChar('');
-                    }
-
-                    $lineCount++;
-
                 } else {
-                    $placeChar($char);
+                    if ($char === "\n") {
+                        /**
+                         * END OF LINE
+                         */
+                        $lineCount++;
+
+                        $lines[$lineCount] = $currentLine;
+
+                        $callbackResult = call_user_func($callback, $lines[$lineCount]);
+
+                        $currentLine = '';
+
+                        if ($lineCount == $linesLimit || $callbackResult === false) {
+                            break;
+                        }
+
+                    } elseif ($i == 0) {
+                        /**
+                         * END OF FILE
+                         */
+                        $lineCount++;
+                        $lines[$lineCount] = $char . $currentLine;
+
+                        $callbackResult = call_user_func($callback, $lines[$lineCount]);
+
+                        if ($lineCount == $linesLimit || $callbackResult === false) {
+                            break;
+                        }
+
+                    } else {
+                        $currentLine = $char . $currentLine;
+                    }
                 }
 
-                $prevChar = $char;
-
-                if (
-                    (!is_null($linesLimit) && $lineCount == $linesLimit)
-                    ||
-                    $call() === false
-                ) {
-                    break;
-                }
             }
-
-            $call(true);
 
             fclose($fh);
         }

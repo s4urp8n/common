@@ -209,6 +209,9 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
         $emptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt';
+        $twoEmptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'twoEmptyLines.txt';
+        $threeEmptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'threeEmptyLines.txt';
+        $oneEmptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt';
         $oneFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt';
 
         $string = '';
@@ -220,7 +223,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
         };
 
         $testData = [
-            $testFile  => [
+            $testFile       => [
                 [
                     null,
                     [
@@ -307,7 +310,34 @@ class CommonTest extends PHPUnit\Framework\TestCase
                     ],
                 ],
             ],
-            $emptyFile => [
+            $oneEmptyFile   => [
+                [
+                    null,
+                    [
+                        '',
+                    ],
+                ],
+            ],
+            $twoEmptyFile   => [
+                [
+                    null,
+                    [
+                        '',
+                        '',
+                    ],
+                ],
+            ],
+            $threeEmptyFile => [
+                [
+                    null,
+                    [
+                        '',
+                        '',
+                        '',
+                    ],
+                ],
+            ],
+            $emptyFile      => [
                 [
                     null,
                     [],
@@ -325,7 +355,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                     [],
                 ],
             ],
-            $oneFile   => [
+            $oneFile        => [
                 [
                     null,
                     [' здесь всего одна  строка'],
@@ -365,6 +395,155 @@ class CommonTest extends PHPUnit\Framework\TestCase
             }
 
         }
+
+    }
+
+    public function testReadFileCallbackFalseAndLimit()
+    {
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+
+        /**
+         * Return false
+         */
+        $lines = [];
+
+        Common::readFileByLines($testFile, function ($line) use (&$lines) {
+
+            if ($line == '') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, null);
+
+        $this->assertSame($lines, [
+            '0',
+            'this is not a test',
+            ' 2',
+            'а это  русский текст',
+        ]);
+
+        /**
+         * Limit before
+         */
+
+        $lines = [];
+
+        Common::readFileByLines($testFile, function ($line) use (&$lines) {
+
+            if ($line == '') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, 4, null);
+
+        $this->assertSame($lines, [
+            '0',
+            'this is not a test',
+            ' 2',
+            'а это  русский текст',
+        ]);
+
+        $lines = [];
+
+        Common::readFileByLines($testFile, function ($line) use (&$lines) {
+
+            if ($line == '') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, 3, null);
+
+        $this->assertSame($lines, [
+            '0',
+            'this is not a test',
+            ' 2',
+        ]);
+    }
+
+    public function testReadFileFromEndCallbackFalseAndLimit()
+    {
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+
+        /**
+         * Return false
+         */
+        $lines = [];
+
+        Common::readFileByLinesFromEnd($testFile, function ($line) use (&$lines) {
+
+            if ($line == '6') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, null);
+
+        $this->assertSame($lines, [
+            ' 9',
+            '8',
+            '7',
+        ]);
+
+        /**
+         * Limit before
+         */
+        $lines = [];
+
+        Common::readFileByLinesFromEnd($testFile, function ($line) use (&$lines) {
+
+            if ($line == '6') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, 3);
+
+        $this->assertSame($lines, [
+            ' 9',
+            '8',
+            '7',
+        ]);
+
+        $lines = [];
+
+        Common::readFileByLinesFromEnd($testFile, function ($line) use (&$lines) {
+
+            if ($line == '6') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, 2);
+
+        $this->assertSame($lines, [
+            ' 9',
+            '8',
+        ]);
+
+        $lines = [];
+
+        Common::readFileByLinesFromEnd($testFile, function ($line) use (&$lines) {
+
+            if ($line == '6') {
+                return false;
+            }
+
+            $lines[] = $line;
+
+        }, 1);
+
+        $this->assertSame($lines, [
+            ' 9',
+        ]);
 
     }
 
@@ -415,8 +594,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
             }
 
         }
-
-        $this->fail('end');
 
     }
 
@@ -543,9 +720,12 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'threeEmptyLines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'twoEmptyLines.txt',
                                    ],
                                ],
                            ]);
@@ -565,9 +745,12 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'threeEmptyLines.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'twoEmptyLines.txt',
                                    ],
                                ],
                                [
@@ -575,6 +758,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
                                ],
                            ]);
+
     }
 
     public function testExecuteWithTimeout()
