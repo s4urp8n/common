@@ -597,6 +597,13 @@ namespace Zver {
             return false;
         }
 
+        /**
+         * Read file line-by-line until end of file is reached or $linesLimit reached or $callback return FALSE
+         *
+         * @param          $path
+         * @param callable $callback
+         * @param null     $linesLimit
+         */
         public static function readFileByLines($path, callable $callback, $linesLimit = null)
         {
 
@@ -610,9 +617,17 @@ namespace Zver {
 
                 $currentLine++;
 
-                call_user_func($callback, $line);
+                $callbackResult = call_user_func($callback, $line);
 
-                if (!is_null($linesLimit) && $currentLine >= $linesLimit - 1) {
+                if (
+                    (
+                        !is_null($linesLimit)
+                        &&
+                        $currentLine >= $linesLimit - 1
+                    )
+                    ||
+                    $callbackResult === false
+                ) {
                     break;
                 }
 
@@ -624,43 +639,58 @@ namespace Zver {
 
         public static function readFileByLinesFromEnd($path, callable $callback, $linesLimit = null)
         {
-
             $lines = [];
-
             $fh = fopen($path, "r");
-
-            /**
-             * Seek to the end of file
-             */
             fseek($fh, 0, SEEK_END);
-
             $min = 0;
             $max = ftell($fh);
-
             $offset = null;
             $prevChar = null;
             $lineCount = 0;
 
             $placeChar = function ($char) use (&$lines, &$lineCount) {
-
                 if (!array_key_exists($lineCount, $lines)) {
                     $lines[$lineCount] = '';
                 }
-
                 $lines[$lineCount] = $char . $lines[$lineCount];
+            };
+
+            $called = [];
+
+            $call = function ($end = false) use (&$lines, &$callback, &$lineCount, &$called) {
+
+                $callbackResult = null;
+
+                $callIndex = count($lines) - 2;
+
+                if ($end) {
+
+                    if (!empty($lines)) {
+                        $callbackResult = call_user_func($callback, $lines[$callIndex + 1]);
+                    }
+
+                } elseif (array_key_exists($callIndex, $lines) && !in_array($callIndex, $called)) {
+
+                    $called[] = $callIndex;
+
+                    $callbackResult = call_user_func($callback, $lines[$callIndex]);
+
+                }
+
+                return $callbackResult;
+
             };
 
             for ($i = $max - 1; $i >= 0; $i--) {
 
                 fseek($fh, $i, SEEK_SET);
-
                 $char = fread($fh, 1);
 
                 if ($char === "\r") {
-                    continue;
-                }
 
-                if ($char === "\n") {
+                    continue;
+
+                } elseif ($char === "\n") {
 
                     if ($prevChar === "\n") {
                         $placeChar('');
@@ -668,27 +698,24 @@ namespace Zver {
 
                     $lineCount++;
 
-                    if (!is_null($linesLimit) && $lineCount == $linesLimit) {
-                        break;
-                    }
-
-                    $prevChar = $char;
-
-                    continue;
+                } else {
+                    $placeChar($char);
                 }
-
-                $placeChar($char);
 
                 $prevChar = $char;
 
+                if (
+                    (!is_null($linesLimit) && $lineCount == $linesLimit)
+                    ||
+                    $call() === false
+                ) {
+                    break;
+                }
             }
 
-            foreach ($lines as $line) {
-                call_user_func($callback, $line);
-            }
+            $call(true);
 
             fclose($fh);
-
         }
 
         public static function getTimestampMicrotime()

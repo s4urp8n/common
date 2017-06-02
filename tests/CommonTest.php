@@ -119,7 +119,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
         ];
 
         foreach ($tests as $testMethod => $testData) {
-            foreach ($testData as $test) {
+            foreach ($testData as $index => $test) {
 
                 $result = '';
 
@@ -129,7 +129,11 @@ class CommonTest extends PHPUnit\Framework\TestCase
                     $result = Common::getLastFileLines($test[0], $test[1]);
                 }
 
-                $this->assertSame($result, $test[2]);
+                $this->assertSame(
+                    $result,
+                    $test[2],
+                    'Can\'t assert results is the same! Test method=' . $testMethod . ', test #' . $index
+                );
             }
         }
 
@@ -200,6 +204,170 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
+    public function testReadFileByLinesFromEnd2()
+    {
+
+        $testFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt';
+        $emptyFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt';
+        $oneFile = __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt';
+
+        $string = '';
+
+        $lines = [];
+
+        $callback = function ($line) use (&$lines) {
+            $lines[] = $line;
+        };
+
+        $testData = [
+            $testFile  => [
+                [
+                    null,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                        '',
+                        'а это  русский текст',
+                        ' 2',
+                        'this is not a test',
+                        '0',
+                    ],
+                ],
+                [
+                    999999999,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                        '',
+                        'а это  русский текст',
+                        ' 2',
+                        'this is not a test',
+                        '0',
+                    ],
+                ],
+                [
+                    6,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                    ],
+                ],
+                [
+                    8,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                        '',
+                        'а это  русский текст',
+                    ],
+                ],
+                [
+                    9,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                        '',
+                        'а это  русский текст',
+                        ' 2',
+                    ],
+                ],
+                [
+                    10,
+                    [
+                        ' 9',
+                        '8',
+                        '7',
+                        '6',
+                        ' 5',
+                        '4',
+                        '',
+                        'а это  русский текст',
+                        ' 2',
+                        'this is not a test',
+                    ],
+                ],
+            ],
+            $emptyFile => [
+                [
+                    null,
+                    [],
+                ],
+                [
+                    6,
+                    [],
+                ],
+                [
+                    8,
+                    [],
+                ],
+                [
+                    8999999,
+                    [],
+                ],
+            ],
+            $oneFile   => [
+                [
+                    null,
+                    [' здесь всего одна  строка'],
+                ],
+                [
+                    1,
+                    [' здесь всего одна  строка'],
+                ],
+                [
+                    6,
+                    [' здесь всего одна  строка'],
+                ],
+                [
+                    8,
+                    [' здесь всего одна  строка'],
+                ],
+                [
+                    8999999,
+                    [' здесь всего одна  строка'],
+                ],
+            ],
+        ];
+
+        foreach ($testData as $file => $test) {
+
+            foreach ($test as $index => $data) {
+
+                $lines = [];
+
+                Common::readFileByLinesFromEnd($file, $callback, $data[0]);
+
+                $this->assertSame(
+                    $data[1],
+                    $lines,
+                    "Can't assert results the same in test file " . $file . " test #" . $index
+                );
+            }
+
+        }
+
+    }
+
     public function testReadFileByLines()
     {
 
@@ -247,6 +415,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
             }
 
         }
+
+        $this->fail('end');
 
     }
 
