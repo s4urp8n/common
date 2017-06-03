@@ -440,6 +440,8 @@ namespace Zver {
 
             if (file_exists($source)) {
 
+                $source = Common::replaceSlashesToPlatformSlashes($source);
+
                 if (is_dir($source)) {
 
                     $source = realpath($source) . DIRECTORY_SEPARATOR;
