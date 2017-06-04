@@ -428,6 +428,11 @@ namespace Zver {
             static::createDirectoryIfNotExists($directory);
         }
 
+        public static function getNullDevice()
+        {
+            return static::isWindowsOS() ? 'nul' : '/dev/null';
+        }
+
         /**
          * Copy fiel or directory to specified directory
          *

@@ -7,6 +7,17 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetNullDevice()
+    {
+
+        if (Common::isWindowsOS()) {
+            $this->assertSame(Common::getNullDevice(), 'nul');
+        } else {
+            $this->assertSame(Common::getNullDevice(), '/dev/null');
+        }
+
+    }
+
     public function testCopyDirectory()
     {
 
