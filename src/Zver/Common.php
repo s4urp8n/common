@@ -434,7 +434,7 @@ namespace Zver {
         }
 
         /**
-         * Copy fiel or directory to specified directory
+         * Copy file or directory to specified directory
          *
          * @param $source
          * @param $destinationDirectory
@@ -443,7 +443,7 @@ namespace Zver {
         public static function copy($source, $destinationDirectory)
         {
 
-            if (file_exists($source)) {
+            if (file_exists($source) && is_dir($destinationDirectory)) {
 
                 $source = Common::replaceSlashesToPlatformSlashes($source);
 
@@ -459,7 +459,7 @@ namespace Zver {
 
                 clearstatcache(true);
 
-                $command = sprintf('xcopy "%s" "%s" /Q /Y', $source, $destinationDirectory);
+                $command = sprintf('xcopy "%s" "%s" /Q /Y /I', $source, $destinationDirectory);
 
                 if (static::isLinuxOS()) {
                     $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source, $destinationDirectory);
