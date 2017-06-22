@@ -40,6 +40,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
         clearstatcache(true);
         $this->assertFalse(is_dir($copyDirectory));
 
+        Common::createDirectoryIfNotExists($copyDirectory);
+
         Common::copy($filesDir, $copyDirectory);
 
         clearstatcache(true);

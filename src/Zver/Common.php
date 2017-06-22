@@ -434,7 +434,8 @@ namespace Zver {
         }
 
         /**
-         * Copy file or directory to specified directory
+         * Copy file or directory to specified directory.
+         * Destination directory must exists before copy started
          *
          * @param $source
          * @param $destinationDirectory
