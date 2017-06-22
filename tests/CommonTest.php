@@ -31,13 +31,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         $filesDir = $testsDirectory . 'files' . DIRECTORY_SEPARATOR;
 
-        $baseNameArray = function (array $paths) {
-            return array_map(function ($path) {
-                return basename($path);
-            }, $paths);
-        };
-
         clearstatcache(true);
+
         $this->assertFalse(is_dir($copyDirectory));
 
         Common::createDirectoryIfNotExists($copyDirectory);
@@ -46,10 +41,17 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         clearstatcache(true);
         $this->assertTrue(is_dir($copyDirectory));
+        $this->assertTrue(is_dir($copyDirectory . 'files'));
+
+        $baseName = function ($array) {
+            return array_map(function ($value) {
+                return basename($value);
+            }, $array);
+        };
 
         $this->assertSame(
-            $baseNameArray(Common::getDirectoryContentRecursive($copyDirectory)),
-            $baseNameArray(Common::getDirectoryContentRecursive($filesDir))
+            $baseName(Common::getDirectoryContent($filesDir)),
+            $baseName(Common::getDirectoryContent($copyDirectory . 'files'))
         );
 
         Common::removeDirectory($copyDirectory);
@@ -730,7 +732,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                [
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files/'),
                                    [
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',
@@ -755,7 +756,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'classes' . DIRECTORY_SEPARATOR . '.gitkeep',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'CommonTest.php',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files',
-                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . '.gitkeep',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'emptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',

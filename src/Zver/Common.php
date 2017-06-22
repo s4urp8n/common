@@ -448,17 +448,13 @@ namespace Zver {
 
                 $source = Common::replaceSlashesToPlatformSlashes($source);
 
-                if (is_dir($source)) {
-
-                    $source = realpath($source) . DIRECTORY_SEPARATOR;
-
-                    if (static::isWindowsOS()) {
-                        $source .= '*';
-                    }
-
-                }
-
                 clearstatcache(true);
+
+                if (is_dir($source)) {
+                    if ($source[mb_strlen($source) - 1] != DIRECTORY_SEPARATOR) {
+                        $source .= DIRECTORY_SEPARATOR;
+                    }
+                }
 
                 $command = sprintf('xcopy "%s" "%s" /Q /Y /I', $source, $destinationDirectory);
 
