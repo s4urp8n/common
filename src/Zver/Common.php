@@ -185,6 +185,17 @@ namespace Zver {
                 return strcasecmp($a, $b);
             });
 
+            /**
+             * Dots
+             */
+            $filesAndFolders = array_filter($filesAndFolders, function ($path) {
+                if ($path == '.' || $path == '..') {
+                    return false;
+                }
+
+                return true;
+            });
+
             return $filesAndFolders;
         }
 
@@ -195,6 +206,10 @@ namespace Zver {
             if (is_dir($directory)) {
 
                 $content = scandir($directory, SCANDIR_SORT_ASCENDING);
+
+                /**
+                 * dots
+                 */
                 array_shift($content);
                 array_shift($content);
 
@@ -212,20 +227,14 @@ namespace Zver {
         public static function getDirectoryContentRecursive($directory)
         {
 
-            $content = [];
+            $content = static::getDirectoryContent($directory);
 
             clearstatcache(true);
 
-            if (is_dir($directory)) {
-
-                $directory = realpath($directory);
-
-                $iterator = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($directory, \RecursiveDirectoryIterator::SKIP_DOTS), \RecursiveIteratorIterator::SELF_FIRST);
-
-                $content = array_map(function (\SplFileInfo $value) {
-                    return $value->getRealPath();
-                }, iterator_to_array($iterator));
-
+            foreach ($content as $item) {
+                if (is_dir($item)) {
+                    $content = array_merge($content, static::getDirectoryContentRecursive($item));
+                }
             }
 
             return static::sortFilesAndFolders($content);
@@ -446,17 +455,41 @@ namespace Zver {
 
             if (file_exists($source) && is_dir($destinationDirectory)) {
 
-                $source = Common::replaceSlashesToPlatformSlashes($source);
+                $source = static::replaceSlashesToPlatformSlashes($source);
 
                 clearstatcache(true);
 
+                $commandTemplate = 'xcopy "%s" "%s" /R /Q /Y /I /H';
+
                 if (is_dir($source)) {
+
+                    $commandTemplate .= ' /E';
+                    /**
+                     * Trailing directory separator
+                     */
                     if ($source[mb_strlen($source) - 1] != DIRECTORY_SEPARATOR) {
-                        $source .= DIRECTORY_SEPARATOR;
+                        if (static::isLinuxOS()) {
+                            $source .= DIRECTORY_SEPARATOR;
+                        }
+                    } else {
+                        $source = mb_substr($source, 0, -1, static::getDefaultEncoding());
                     }
+
+                    /**
+                     * On windows create folder structure
+                     */
+                    if (static::isWindowsOS()) {
+                        static::createDirectoryIfNotExists(static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source)));
+                    }
+
                 }
 
-                $command = sprintf('xcopy "%s" "%s" /Q /Y /I', $source, $destinationDirectory);
+                $destination =
+                    is_dir($source)
+                        ? static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source))
+                        : $destinationDirectory;
+
+                $command = sprintf($commandTemplate, $source, $destination);
 
                 if (static::isLinuxOS()) {
                     $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source, $destinationDirectory);
@@ -470,8 +503,11 @@ namespace Zver {
             return false;
         }
 
-        public static function move($source, $destination)
-        {
+        public
+        static function move(
+            $source,
+            $destination
+        ) {
 
             $source = static::stripEndingSlashes($source);
             $destination = static::stripEndingSlashes($destination);
@@ -495,8 +531,10 @@ namespace Zver {
             return false;
         }
 
-        public static function getAllCombinations(array $array)
-        {
+        public
+        static function getAllCombinations(
+            array $array
+        ) {
             $current = $combinations = [];
             $count = count($array);
             $max = pow(2, $count) - 1;
@@ -590,8 +628,10 @@ namespace Zver {
 
         }
 
-        public static function getFileExtension($filename)
-        {
+        public
+        static function getFileExtension(
+            $filename
+        ) {
             $lastDot = mb_strrpos($filename, '.', false, static::getDefaultEncoding());
 
             if ($lastDot !== false) {
@@ -608,8 +648,12 @@ namespace Zver {
          * @param callable $callback
          * @param null     $linesLimit
          */
-        public static function readFileByLines($path, callable $callback, $linesLimit = null)
-        {
+        public
+        static function readFileByLines(
+            $path,
+            callable $callback,
+            $linesLimit = null
+        ) {
 
             $currentLine = -1;
 
@@ -641,8 +685,12 @@ namespace Zver {
 
         }
 
-        public static function readFileByLinesFromEnd($path, callable $callback, $linesLimit = null)
-        {
+        public
+        static function readFileByLinesFromEnd(
+            $path,
+            callable $callback,
+            $linesLimit = null
+        ) {
 
             $lines = [];
             $fh = fopen($path, "r");
@@ -700,7 +748,8 @@ namespace Zver {
             fclose($fh);
         }
 
-        public static function getTimestampMicrotime()
+        public
+        static function getTimestampMicrotime()
         {
             return number_format(
                 microtime(true),
@@ -710,8 +759,11 @@ namespace Zver {
             );
         }
 
-        public static function getLastFileLines($path, $linesCount)
-        {
+        public
+        static function getLastFileLines(
+            $path,
+            $linesCount
+        ) {
             $lines = [];
 
             static::readFileByLinesFromEnd($path, function ($line) use (&$lines) {
@@ -721,8 +773,11 @@ namespace Zver {
             return implode(PHP_EOL, array_reverse($lines));
         }
 
-        public static function getFirstFileLines($path, $linesCount)
-        {
+        public
+        static function getFirstFileLines(
+            $path,
+            $linesCount
+        ) {
             $lines = [];
 
             static::readFileByLines($path, function ($line) use (&$lines) {

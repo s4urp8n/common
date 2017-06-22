@@ -37,7 +37,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         Common::createDirectoryIfNotExists($copyDirectory);
 
-        Common::copy($filesDir, $copyDirectory);
+        $this->assertTrue(Common::copy($filesDir, $copyDirectory));
 
         clearstatcache(true);
         $this->assertTrue(is_dir($copyDirectory));
@@ -50,8 +50,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
         };
 
         $this->assertSame(
-            $baseName(Common::getDirectoryContent($filesDir)),
-            $baseName(Common::getDirectoryContent($copyDirectory . 'files'))
+            $baseName(Common::getDirectoryContentRecursive($filesDir)),
+            $baseName(Common::getDirectoryContentRecursive($copyDirectory . 'files' . DIRECTORY_SEPARATOR))
         );
 
         Common::removeDirectory($copyDirectory);
@@ -736,6 +736,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'only-for-test',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'threeEmptyLines.txt',
@@ -760,6 +761,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'lines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneEmptyLines.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'oneLine.txt',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'only-for-test',
+                                       __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'only-for-test' . DIRECTORY_SEPARATOR . '.empty-for-test',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringUTF-8.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'StringWin1251.txt',
                                        __DIR__ . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . 'threeEmptyLines.txt',
@@ -767,8 +770,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    ],
                                ],
                                [
-                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
-                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'files'),
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'classes'),
+                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'classes'),
                                ],
                            ]);
 
