@@ -391,11 +391,56 @@ namespace Zver {
 
             if (is_dir($directory)) {
 
-                $command = static::isWindowsOS()
-                    ? sprintf('rmdir /s /q "%s"', $directory)
-                    : sprintf('rm -rf "%s"', $directory);
+                $output = $exitCode = '';
 
-                @exec($command . ' 2>&1', $output, $exitCode);
+                if (static::isWindowsOS()) {
+
+                    $uniqHash = '____' . md5(uniqid(rand(), true) . microtime(true)) . rand(11, 99) . rand(11, 99);
+
+                    $fullOutput = '';
+
+                    /**
+                     * Robocopy method
+                     */
+                    @exec('mkdir "' . $uniqHash . '" 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    @exec('robocopy "%1$s" "%2$s" /s /mir 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    @exec('rmdir /s /q "' . $uniqHash . '" 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    /**
+                     * Regular deletion
+                     */
+                    @exec('rmdir /s /q "' . $directory . '" 2>&1', $output, $exitCode);
+                    $fullOutput .= "\n\n" . $output;
+
+                    /**
+                     * Some hacks maybe worked 1
+                     */
+                    @exec('rmdir /s /q "\\.\\' . $uniqHash . '" 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    /**
+                     * Some hacks maybe worked 2
+                     */
+                    @exec('rmdir /s /q "\\\\' . $uniqHash . '" 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    /**
+                     * Some hacks maybe worked 3
+                     */
+                    @exec('rmdir /s /q "\\' . $uniqHash . '" 2>&1', $output);
+                    $fullOutput .= "\n\n" . $output;
+
+                    $output = $fullOutput;
+                    unset($fullOutput);
+
+                } else {
+                    @exec(sprintf('rm -rf "%s" 2>&1', $directory), $output, $exitCode);
+                }
 
                 return $exitCode == 0;
             }
