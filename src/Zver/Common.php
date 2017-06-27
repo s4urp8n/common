@@ -403,37 +403,37 @@ namespace Zver {
                      * Robocopy method
                      */
                     @exec('mkdir "' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     @exec('robocopy "%1$s" "%2$s" /s /mir 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     @exec('rmdir /s /q "' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
                      * Regular deletion
                      */
                     @exec('rmdir /s /q "' . $directory . '" 2>&1', $output, $exitCode);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
                      * Some hacks maybe worked 1
                      */
                     @exec('rmdir /s /q "\\.\\' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
                      * Some hacks maybe worked 2
                      */
                     @exec('rmdir /s /q "\\\\' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
                      * Some hacks maybe worked 3
                      */
                     @exec('rmdir /s /q "\\' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . $output;
+                    $fullOutput .= "\n\n" . implode("\n", $output);
 
                     $output = $fullOutput;
                     unset($fullOutput);
