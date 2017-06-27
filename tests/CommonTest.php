@@ -773,6 +773,14 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'classes'),
                                    Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'classes'),
                                ],
+                               [
+                                   Common::getDirectoryContent(__DIR__ . DIRECTORY_SEPARATOR . 'unexisweqf3f34f'),
+                                   [],
+                               ],
+                               [
+                                   Common::getDirectoryContentRecursive(__DIR__ . DIRECTORY_SEPARATOR . 'unexisweqf3f34f'),
+                                   [],
+                               ],
                            ]);
 
     }
