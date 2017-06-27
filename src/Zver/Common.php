@@ -185,17 +185,6 @@ namespace Zver {
                 return strcasecmp($a, $b);
             });
 
-            /**
-             * Dots
-             */
-            $filesAndFolders = array_filter($filesAndFolders, function ($path) {
-                if ($path == '.' || $path == '..') {
-                    return false;
-                }
-
-                return true;
-            });
-
             return $filesAndFolders;
         }
 
@@ -205,13 +194,14 @@ namespace Zver {
 
             if (is_dir($directory)) {
 
-                $content = scandir($directory, SCANDIR_SORT_ASCENDING);
+                $content = scandir($directory, SCANDIR_SORT_NONE);
 
                 /**
-                 * dots
+                 * Dots
                  */
-                array_shift($content);
-                array_shift($content);
+                $content = array_filter($content, function ($path) {
+                    return ($path != '.' && $path != '..');
+                });
 
                 $content = array_map(function ($value) use ($directory) {
                     return realpath($directory . DIRECTORY_SEPARATOR . $value);
