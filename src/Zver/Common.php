@@ -190,6 +190,8 @@ namespace Zver {
 
         public static function getDirectoryContent($directory)
         {
+            clearstatcache(true);
+
             $content = [];
 
             if (is_dir($directory)) {
@@ -217,9 +219,9 @@ namespace Zver {
         public static function getDirectoryContentRecursive($directory)
         {
 
-            $content = static::getDirectoryContent($directory);
-
             clearstatcache(true);
+
+            $content = static::getDirectoryContent($directory);
 
             foreach ($content as $item) {
                 if (is_dir($item)) {
