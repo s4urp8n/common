@@ -405,7 +405,7 @@ namespace Zver {
                     @exec('mkdir "' . $uniqHash . '" 2>&1', $output);
                     $fullOutput .= "\n\n" . implode("\n", $output);
 
-                    @exec('robocopy "%1$s" "%2$s" /s /mir 2>&1', $output);
+                    @exec('robocopy "' . $uniqHash . '" "' . $directory . '" /s /mir 2>&1', $output);
                     $fullOutput .= "\n\n" . implode("\n", $output);
 
                     @exec('rmdir /s /q "' . $uniqHash . '" 2>&1', $output);
@@ -418,21 +418,15 @@ namespace Zver {
                     $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
-                     * Some hacks maybe worked 1
+                     * Some hack maybe worked 1
                      */
                     @exec('rmdir /s /q "\\.\\' . $uniqHash . '" 2>&1', $output);
                     $fullOutput .= "\n\n" . implode("\n", $output);
 
                     /**
-                     * Some hacks maybe worked 2
+                     * Some hack maybe worked 2
                      */
                     @exec('rmdir /s /q "\\\\' . $uniqHash . '" 2>&1', $output);
-                    $fullOutput .= "\n\n" . implode("\n", $output);
-
-                    /**
-                     * Some hacks maybe worked 3
-                     */
-                    @exec('rmdir /s /q "\\' . $uniqHash . '" 2>&1', $output);
                     $fullOutput .= "\n\n" . implode("\n", $output);
 
                     $output = $fullOutput;
