@@ -23,6 +23,42 @@ namespace Zver {
         }
 
         /**
+         * Return associative array where keys are pids and values are commands
+         *
+         * @return array
+         */
+        public static function getProcessesList()
+        {
+
+            $processes = [];
+
+            $command = static::isWindowsOS() ? 'WMIC path win32_process get Commandline,Processid' : 'ps -exo command,pid';
+
+            @exec($command, $output, $exitcode);
+
+            foreach ($output as $line) {
+
+                $cmd = mb_eregi_replace('\s*\d+$', '', $line);
+
+                if (trim($cmd) != '') {
+
+                    $pid = mb_eregi_replace('\D+', '',
+                                            mb_substr($line, mb_strlen($cmd, static::getDefaultEncoding()), null, static::getDefaultEncoding()));
+
+                    if (is_numeric($pid) && $pid != 0) {
+
+                        $processes[$pid] = $cmd;
+
+                    }
+
+                }
+            }
+
+            return $processes;
+
+        }
+
+        /**
          * Replace slashes to current platform slashes
          *
          * @param $path
@@ -269,6 +305,18 @@ namespace Zver {
 
         }
 
+        /**
+         * Execute command. If timeout reached return false and kill programm.
+         * If programm normally executed return true if exitcode is 0, false otherwise.
+         * Output will placed to $output variable
+         * Exitcode will placed to $exitcode variable
+         *
+         * @param      $command
+         * @param int  $timeout
+         * @param null $output
+         * @param null $exitcode
+         * @return bool
+         */
         public static function executeInSystemWithTimeout(
             $command,
             $timeout = 30,

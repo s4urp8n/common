@@ -7,6 +7,22 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetProcesseList()
+    {
+
+        $processes = Common::getProcessesList();
+
+        $this->assertTrue(is_array($processes));
+        $this->assertTrue(!empty($processes));
+
+        if (Common::isWindowsOS()) {
+            $this->assertTrue(in_array('cmd.exe', $processes));
+        } else {
+            $this->assertTrue(in_array('/bin/bash', $processes));
+        }
+
+    }
+
     public function testExecuteWithTimeoutSystem()
     {
 
