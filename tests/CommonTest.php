@@ -113,7 +113,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
     public function testExtensionsInstalled()
     {
 
-        $functions = [];
+        $functions = ['mb_strlen'];
 
         if (Common::isLinuxOS()) {
             $functions[] = 'posix_kill';
