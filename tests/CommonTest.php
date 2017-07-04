@@ -7,6 +7,93 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testExecuteWithTimeoutSystem()
+    {
+
+        if (Common::isLinuxOS()) {
+            $this->assertTrue(Common::isTimeoutLinuxInstalled());
+        }
+
+        $testData = [
+            [
+                'command'  => 'php 10sec.php',
+                'timeout'  => 20,
+                'expected' => '++++++++++',
+                'result'   => true,
+            ],
+            [
+                'command'  => 'php 10sec.php',
+                'timeout'  => 25,
+                'expected' => '++++++++++',
+                'result'   => true,
+            ],
+            [
+                'command'  => 'php 10sec.php',
+                'timeout'  => 12,
+                'expected' => '++++++++++',
+                'result'   => true,
+            ],
+            [
+                'command'  => 'php 10sec.php',
+                'timeout'  => 6,
+                'expected' => '++++++',
+                'result'   => false,
+            ],
+        ];
+
+        if (Common::isLinuxOS()) {
+
+            $testData[] = [
+                'command'  => 'sleep 10',
+                'timeout'  => 5,
+                'expected' => '',
+                'result'   => false,
+            ];
+
+            $testData[] = [
+                'command'  => 'sleep 10',
+                'timeout'  => 50,
+                'expected' => '',
+                'result'   => true,
+            ];
+        }
+
+        foreach ($testData as $index => $test) {
+
+            try {
+
+                $result = Common::executeInSystemWithTimeout($test['command'], $test['timeout'], $output, $exitcode);
+
+                $this->assertSame($result, $test['result'], 'Results of test ' . $index . ' not the same');
+                $this->assertSame($output, $test['expected']);
+
+            }
+            catch (\Exception $e) {
+
+            }
+            catch (\Throwable $e) {
+
+            }
+
+        }
+
+    }
+
+    public function testExtensionsInstalled()
+    {
+
+        $functions = [];
+
+        if (Common::isLinuxOS()) {
+            $functions[] = 'posix_kill';
+        }
+
+        foreach ($functions as $function) {
+            $this->assertTrue(function_exists($function));
+        }
+
+    }
+
     public function testGetNullDevice()
     {
 
@@ -785,50 +872,13 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
-    public function testExecuteWithTimeout()
+    public static function getDuration($callback, $args = [])
     {
-
-        $results = [];
-        $times = [];
-
-        /**
-         * Normal executing
-         */
-
         $startTime = time();
-        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php', 20, $output, $exitcode));
-        $results[] = $output;
-        $times[] = time() - $startTime;
 
-        /**
-         * Terminated execution
-         */
-        $startTime = time();
-        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php', 5, $output, $exitcode));
-        $results[] = $output;
-        $times[] = time() - $startTime;
+        call_user_func($callback, $args);
 
-        $startTime = time();
-        $this->assertFalse(Common::executeInSystemWithTimeout('php 10sec.php', 2, $output, $exitcode));
-        $results[] = $output;
-        $times[] = time() - $startTime;
-
-        /**
-         * Normal executing
-         */
-        $startTime = time();
-        $this->assertTrue(Common::executeInSystemWithTimeout('php 10sec.php', 20, $output, $exitcode));
-        $results[] = $output;
-        $times[] = time() - $startTime;
-
-        $rightResult = '++++++++++';
-
-        $this->assertSame($results[0], $results[3]);
-        $this->assertSame($results[0], $rightResult);
-        $this->assertNotSame($results[1], $results[2]);
-        $this->assertNotSame($results[0], $results[1]);
-        $this->assertNotSame($results[0], $results[2]);
-
+        return time() - $startTime;
     }
 
     public static function setUpBeforeClass()
@@ -1159,6 +1209,16 @@ class CommonTest extends PHPUnit\Framework\TestCase
         return 'php "' . dirname($this->getSyncFile()) . DIRECTORY_SEPARATOR . '10sec.php"';
     }
 
+    protected function getSleepSystemCommand($seconds)
+    {
+
+        $command = Common::isWindowsOS() ? 'timeout' : 'sleep';
+
+        $command .= ' ' . $seconds . ' > ' . Common::getNullDevice() . ' 2>&1';
+
+        return $command;
+    }
+
     protected function set0ToSync()
     {
         file_put_contents($this->getSyncFile(), "0");
@@ -1243,6 +1303,8 @@ class CommonTest extends PHPUnit\Framework\TestCase
         Common::killProcess($pid);
 
         $this->assertFalse(Common::isProcessRunning($pid));
+
+        Common::executeInSystemWithTimeout(static::getSleepSystemCommand(30), 10);
 
     }
 

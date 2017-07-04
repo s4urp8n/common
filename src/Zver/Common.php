@@ -241,90 +241,51 @@ namespace Zver {
             return $output;
         }
 
+        public static function isTimeoutLinuxInstalled()
+        {
+
+            $output = [];
+
+            @exec('timeout --help 2>&1', $output, $exitcode);
+
+            if (is_array($output)) {
+                $output = implode("\n", $output);
+            }
+
+            if (preg_match('#\-\-help#i', $output) == 1
+                &&
+                preg_match('#\-\-kill#i', $output) == 1
+                &&
+                preg_match('#\-\-foreground#i', $output) == 1
+                &&
+                preg_match('#timeout#i', $output) == 1
+                &&
+                preg_match('#124#', $output) == 1
+            ) {
+                return true;
+            }
+
+            return false;
+
+        }
+
         public static function executeInSystemWithTimeout(
             $command,
             $timeout = 30,
-            &$output,
-            &$exitcode
+            &$output = null,
+            &$exitcode = null
         ) {
 
-            $output = '';
-            $exitcode = null;
+            if (static::isLinuxOS()) {
 
-            try {
+                @exec('timeout --kill-after=' . ($timeout + 2) . ' ' . $timeout . ' ' . $command, $output, $exitcode);
 
-                $descriptors = [
-                    ['pipe', 'r'],
-                    ['pipe', 'w'],
-                    ['pipe', 'w'],
-                ];
-
-                $startTime = time();
-
-                $handler = proc_open($command, $descriptors, $pipes, null, null, [
-                    'bypass_shell' => true,
-                ]);
-
-                $isRunning = function ($handler) {
-                    if (is_resource($handler)) {
-
-                        $status = proc_get_status($handler);
-                        if (!empty($status)) {
-                            return $status['running'];
-                        }
-                    }
-
+                if ($exitcode == 137 || $exitcode == 124) {
+                    //Timeout reached
                     return false;
-                };
-
-                while ($isRunning($handler)) {
-
-                    usleep(100);
-
-                    $output .= fread($pipes[1], 1024);
-
-                    if (time() - $startTime > $timeout) {
-
-                        /**
-                         * Timeout reached
-                         */
-                        @fclose($pipes[0]);
-                        @fclose($pipes[1]);
-                        @fclose($pipes[2]);
-
-                        $pid = proc_get_status($handler)['pid'];
-                        @proc_terminate($handler);
-                        static::killProcess($pid);
-
-                        $exitcode = -1;
-
-                        return false;
-                    }
-
                 }
 
-                /**
-                 * Process finished normally
-                 */
-                while (!feof($pipes[1])) {
-                    $output .= fread($pipes[1], 1024);
-                }
-
-                @fclose($pipes[0]);
-                @fclose($pipes[1]);
-                @fclose($pipes[2]);
-
-                $exitcode = proc_close($handler);
-
-                return true;
-
-            }
-            catch (\Throwable $t) {
-
-            }
-
-            catch (\Exception $e) {
-
+                return $exitcode == 0;
             }
 
             return false;
