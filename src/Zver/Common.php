@@ -32,7 +32,7 @@ namespace Zver {
 
             $processes = [];
 
-            $command = static::isWindowsOS() ? 'WMIC path win32_process get Commandline,Processid' : 'ps -axo command,pid';
+            $command = static::isWindowsOS() ? 'WMIC path win32_process get Commandline,Processid' : 'ps axo command,pid';
 
             @exec($command, $output, $exitcode);
 
