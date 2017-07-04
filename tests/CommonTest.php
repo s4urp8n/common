@@ -18,7 +18,22 @@ class CommonTest extends PHPUnit\Framework\TestCase
         if (Common::isWindowsOS()) {
             $this->assertTrue(in_array('cmd.exe', $processes));
         } else {
-            $this->assertTrue(in_array('/bin/bash', $processes));
+
+            $bashExists = false;
+
+            foreach ($processes as $process) {
+
+                if (mb_stripos($process, 'sh', null, Common::getDefaultEncoding()) !== false
+                    ||
+                    mb_stripos($process, 'ps', null, Common::getDefaultEncoding()) !== false
+                ) {
+                    $bashExists = true;
+                    break;
+                }
+
+            }
+
+            $this->assertTrue($bashExists);
         }
 
     }
