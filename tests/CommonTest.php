@@ -42,7 +42,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
     {
 
         if (Common::isLinuxOS()) {
-            $this->assertTrue(Common::isTimeoutLinuxInstalled());
+            $this->assertTrue(Common::isTimeoutLinuxInstalled(), 'Timeout is not installed');
         }
 
         $testData = [
@@ -68,7 +68,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
                 'command'  => 'php 10sec.php',
                 'timeout'  => 6,
                 'expected' => '++++++',
-                'result'   => false,
+                'result'   => Common::isWindowsOS(),
             ],
         ];
 

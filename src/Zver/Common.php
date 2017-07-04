@@ -309,7 +309,8 @@ namespace Zver {
          * Execute command. If timeout reached return false and kill programm.
          * If programm normally executed return true if exitcode is 0, false otherwise.
          * Output will placed to $output variable
-         * Exitcode will placed to $exitcode variable
+         * Exitcode will placed to $exitcode variable.
+         * Timeout functionality available only on linux systems
          *
          * @param      $command
          * @param int  $timeout
@@ -334,6 +335,13 @@ namespace Zver {
                 }
 
                 return $exitcode == 0;
+
+            } else {
+
+                @exec($command, $output, $exitcode);
+
+                return $exitcode == 0;
+
             }
 
             return false;
