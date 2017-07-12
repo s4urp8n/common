@@ -215,7 +215,7 @@ namespace Zver {
             return false;
         }
 
-        protected static function sortFilesAndFolders($filesAndFolders)
+        public static function sortFilesAndFolders($filesAndFolders)
         {
             usort($filesAndFolders, function ($a, $b) {
                 return strcasecmp($a, $b);
