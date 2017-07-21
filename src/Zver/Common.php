@@ -398,7 +398,7 @@ namespace Zver {
         public static function createDirectoryIfNotExists($directory, $mode = 0777)
         {
             if (!is_dir($directory)) {
-                mkdir($directory, $mode, true);
+                @mkdir($directory, $mode, true);
             }
         }
 
