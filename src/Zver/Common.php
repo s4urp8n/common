@@ -681,9 +681,12 @@ namespace Zver {
 
         public static function getFilenameWithoutExtension($filename)
         {
-            $name = static::stripEndingSlashes(static::stripBeginningSlashes(basename($filename)));
 
-            $ext = static::getFileExtension($filename);
+            $parts = explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($filename));
+
+            $name = $parts[count($parts) - 1];
+
+            $ext = static::getFileExtension($name);
 
             if ($ext) {
 
