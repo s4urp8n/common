@@ -577,7 +577,7 @@ namespace Zver {
 
                 clearstatcache(true);
 
-                return $exitCode == 0 && file_exists($destination);
+                return file_exists($destination);
 
             }
 
@@ -681,7 +681,7 @@ namespace Zver {
 
         public static function getFilenameWithoutExtension($filename)
         {
-            $name = basename($filename);
+            $name = static::stripEndingSlashes(static::stripBeginningSlashes(basename($filename)));
 
             $ext = static::getFileExtension($filename);
 
