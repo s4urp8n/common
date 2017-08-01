@@ -501,6 +501,7 @@ namespace Zver {
         public static function copy($source, $destinationDirectory)
         {
 
+            clearstatcache(true);
             if (file_exists($source) && is_dir($destinationDirectory)) {
 
                 $source = static::replaceSlashesToPlatformSlashes($source);
@@ -532,10 +533,9 @@ namespace Zver {
 
                 }
 
-                $destination =
-                    is_dir($source)
-                        ? static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source))
-                        : $destinationDirectory;
+                $destination = is_dir($source)
+                    ? static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source))
+                    : $destinationDirectory;
 
                 $command = sprintf($commandTemplate, $source, $destination);
 
@@ -545,17 +545,20 @@ namespace Zver {
 
                 @exec($command . ' 2>&1', $output, $exitCode);
 
-                return $exitCode == 0;
+                clearstatcache(true);
+
+                $destinationFile = static::stripEndingSlashes(static::replaceSlashesToPlatformSlashes($destinationDirectory)) .
+                                   DIRECTORY_SEPARATOR . basename($source);
+
+                return file_exists($destinationFile);
+
             }
 
             return false;
         }
 
-        public
-        static function move(
-            $source,
-            $destination
-        ) {
+        public static function move($source, $destination)
+        {
 
             $source = static::stripEndingSlashes($source);
             $destination = static::stripEndingSlashes($destination);
@@ -572,17 +575,17 @@ namespace Zver {
 
                 @exec($command . ' 2>&1', $output, $exitCode);
 
-                return $exitCode == 0;
+                clearstatcache(true);
+
+                return $exitCode == 0 && file_exists($destination);
 
             }
 
             return false;
         }
 
-        public
-        static function getAllCombinations(
-            array $array
-        ) {
+        public static function getAllCombinations(array $array)
+        {
             $current = $combinations = [];
             $count = count($array);
             $max = pow(2, $count) - 1;
@@ -676,14 +679,40 @@ namespace Zver {
 
         }
 
-        public
-        static function getFileExtension(
-            $filename
-        ) {
+        public static function getFilenameWithoutExtension($filename)
+        {
+            $name = basename($filename);
+
+            $ext = static::getFileExtension($filename);
+
+            if ($ext) {
+
+                $name = mb_substr(
+                    $name,
+                    0,
+                    -mb_strlen($ext, static::getDefaultEncoding()) - 1,
+                    static::getDefaultEncoding()
+                );
+
+            }
+
+            if (!empty($name) && $name != '.') {
+                return $name;
+            }
+
+            return false;
+        }
+
+        public static function getFileExtension($filename)
+        {
             $lastDot = mb_strrpos($filename, '.', false, static::getDefaultEncoding());
 
             if ($lastDot !== false) {
-                return mb_substr($filename, $lastDot + 1, null, static::getDefaultEncoding());
+                $ext = mb_substr($filename, $lastDot + 1, null, static::getDefaultEncoding());
+
+                if (!empty($ext)) {
+                    return $ext;
+                }
             }
 
             return false;
@@ -696,12 +725,8 @@ namespace Zver {
          * @param callable $callback
          * @param null     $linesLimit
          */
-        public
-        static function readFileByLines(
-            $path,
-            callable $callback,
-            $linesLimit = null
-        ) {
+        public static function readFileByLines($path, callable $callback, $linesLimit = null)
+        {
 
             $currentLine = -1;
 

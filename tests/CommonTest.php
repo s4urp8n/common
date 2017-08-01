@@ -7,6 +7,55 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetFileExtension()
+    {
+        $tests = [
+            ''                                                            => false,
+            '\file'                                                       => false,
+            '\file.exe'                                                   => 'exe',
+            '\file.exe.'                                                  => false,
+            '\file.'                                                      => false,
+            'file.zip'                                                    => 'zip',
+            '\file.exec'                                                  => 'exec',
+            '\file.gitkeep'                                               => 'gitkeep',
+            '.gitkeep'                                                    => 'gitkeep',
+            '..gitkeep'                                                   => 'gitkeep',
+            '.img.gitkeep'                                                => 'gitkeep',
+            '.ra.img.gitkeep'                                             => 'gitkeep',
+            'sas/adad/fefef/ttt.rar.fd/efef.wfdwd/.dwddwd.dwdwd/file.exe' => 'exe',
+            '/sas/adad/file.exe'                                          => 'exe',
+            '\sas\adad\file.exe'                                          => 'exe',
+        ];
+
+        foreach ($tests as $file => $ext) {
+            $this->assertSame(Common::getFileExtension($file), $ext);
+        }
+    }
+
+    public function testGetFileWithoutExtension()
+    {
+        $tests = [
+            ''                                                            => false,
+            '\file'                                                       => 'file',
+            '\file.exe'                                                   => 'file',
+            '\efwqf\wqfwef\wqefwefg.fwefwef\file.exe'                     => 'file',
+            'efwqf/wqfwef/wqefwefg.fwefwef/file.exe'                      => 'file',
+            '\efwqf\wqfwef\wqefwefg.fwefwef\fsdf\file.exe'                => 'file',
+            'file.zip'                                                    => 'file',
+            '\file.exec'                                                  => 'file',
+            '\file.gitkeep'                                               => 'file',
+            '.gitkeep'                                                    => false,
+            '..gitkeep'                                                   => false,
+            '.img.gitkeep'                                                => '.img',
+            '.ra.img.gitkeep'                                             => '.ra.img',
+            'sas/adad/fefef/ttt.rar.fd/efef.wfdwd/.dwddwd.dwdwd/file.exe' => 'file',
+        ];
+
+        foreach ($tests as $file => $result) {
+            $this->assertSame(Common::getFilenameWithoutExtension($file), $result);
+        }
+    }
+
     public function testGetProcesseList()
     {
 
@@ -728,27 +777,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         }
 
-    }
-
-    public function testGetFileExtension()
-    {
-        $tests = [
-            ''                                                            => false,
-            '\file'                                                       => false,
-            '\file.exe'                                                   => 'exe',
-            'file.zip'                                                    => 'zip',
-            '\file.exec'                                                  => 'exec',
-            '\file.gitkeep'                                               => 'gitkeep',
-            '.gitkeep'                                                    => 'gitkeep',
-            '..gitkeep'                                                   => 'gitkeep',
-            '.img.gitkeep'                                                => 'gitkeep',
-            '.ra.img.gitkeep'                                             => 'gitkeep',
-            'sas/adad/fefef/ttt.rar.fd/efef.wfdwd/.dwddwd.dwdwd/file.exe' => 'exe',
-        ];
-
-        foreach ($tests as $file => $ext) {
-            $this->assertSame(Common::getFileExtension($file), $ext);
-        }
     }
 
     public function testCombinations()
