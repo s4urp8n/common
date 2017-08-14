@@ -12,6 +12,30 @@ namespace Zver {
     class Common
     {
 
+        public static function getClientIP()
+        {
+
+            $priorities = [
+                'HTTP_CLIENT_IP',
+                'HTTP_X_FORWARDED_FOR',
+                'HTTP_X_FORWARDED',
+                'HTTP_FORWARDED_FOR',
+                'HTTP_FORWARDED',
+                'REMOTE_ADDR',
+            ];
+
+            foreach ($priorities as $priority) {
+
+                if (!empty($_SERVER) && !empty($_SERVER[$priority])) {
+                    return $_SERVER[$priority];
+                }
+
+            }
+
+            return false;
+
+        }
+
         /**
          * Get default encoding of project
          *
@@ -43,7 +67,8 @@ namespace Zver {
                 if (trim($cmd) != '') {
 
                     $pid = mb_eregi_replace('\D+', '',
-                                            mb_substr($line, mb_strlen($cmd, static::getDefaultEncoding()), null, static::getDefaultEncoding()));
+                                            mb_substr($line, mb_strlen($cmd, static::getDefaultEncoding()), null,
+                                                      static::getDefaultEncoding()));
 
                     if (is_numeric($pid) && $pid != 0) {
 
@@ -62,6 +87,7 @@ namespace Zver {
          * Replace slashes to current platform slashes
          *
          * @param $path
+         *
          * @return string
          */
         public static function replaceSlashesToPlatformSlashes($path)
@@ -89,6 +115,7 @@ namespace Zver {
          *
          * @param $string
          * @param $fromEncoding
+         *
          * @return string
          */
         public static function convertToDefaultEncoding($string, $fromEncoding)
@@ -316,6 +343,7 @@ namespace Zver {
          * @param int  $timeout
          * @param null $output
          * @param null $exitcode
+         *
          * @return bool
          */
         public static function executeInSystemWithTimeout(
@@ -463,6 +491,7 @@ namespace Zver {
          * Remove file or directory
          *
          * @param $path
+         *
          * @return bool
          */
         public static function remove($path)
@@ -496,6 +525,7 @@ namespace Zver {
          *
          * @param $source
          * @param $destinationDirectory
+         *
          * @return bool
          */
         public static function copy($source, $destinationDirectory)
@@ -540,7 +570,8 @@ namespace Zver {
                 $command = sprintf($commandTemplate, $source, $destination);
 
                 if (static::isLinuxOS()) {
-                    $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source, $destinationDirectory);
+                    $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source,
+                                       $destinationDirectory);
                 }
 
                 @exec($command . ' 2>&1', $output, $exitCode);

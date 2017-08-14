@@ -7,6 +7,11 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testGetIP()
+    {
+        $this->assertFalse(Common::getClientIP());
+    }
+
     public function testGetFileExtension()
     {
         $tests = [
@@ -1042,11 +1047,13 @@ class CommonTest extends PHPUnit\Framework\TestCase
                                    'с т р о к а',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringWin1251.txt')), 'Windows-1251'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringWin1251.txt')),
+                                                                    'Windows-1251'),
                                    'строка',
                                ],
                                [
-                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringUTF-8.txt')), 'UTF-8'),
+                                   Common::convertToDefaultEncoding(file_get_contents(static::getPackagePath('tests/files/StringUTF-8.txt')),
+                                                                    'UTF-8'),
                                    'строка',
                                ],
                            ]);
@@ -1372,13 +1379,15 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     public function createTestDirectories()
     {
-        $deepest = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, static::$testDireftoriesDepth, 1)) . DIRECTORY_SEPARATOR;
+        $deepest = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, static::$testDireftoriesDepth,
+                                                                                      1)) . DIRECTORY_SEPARATOR;
 
         mkdir($deepest, 0777, true);
         $this->assertTrue(file_exists($deepest));
 
         for ($i = 1; $i <= static::$testDireftoriesDepth; $i++) {
-            $file = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, $i, 1)) . DIRECTORY_SEPARATOR . $i . '.' . static::$testExt;
+            $file = __DIR__ . DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, range(1, $i,
+                                                                                       1)) . DIRECTORY_SEPARATOR . $i . '.' . static::$testExt;
             file_put_contents($file, md5(rand(1, 9999)));
             $this->assertTrue(file_exists($file));
         }
