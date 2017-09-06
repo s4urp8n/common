@@ -56,27 +56,47 @@ namespace Zver {
 
             $processes = [];
 
-            $command = static::isWindowsOS() ? 'WMIC path win32_process get Commandline,Processid' : 'ps axo command,pid';
+            $command = static::isWindowsOS() ? 'WMIC path win32_process get Commandline,ProcessId' : 'ps axo pid,command';
 
             @exec($command, $output, $exitcode);
 
             foreach ($output as $line) {
 
-                $cmd = mb_eregi_replace('\s*\d+$', '', $line);
+                $line = mb_eregi_replace('^\s+|\s+$', '', $line, static::getDefaultEncoding());
+                $line = mb_eregi_replace('\s+', ' ', $line, static::getDefaultEncoding());
 
-                if (trim($cmd) != '') {
+                if (static::isWindowsOS()) {
 
-                    $pid = mb_eregi_replace('\D+', '',
-                                            mb_substr($line, mb_strlen($cmd, static::getDefaultEncoding()), null,
-                                                      static::getDefaultEncoding()));
+                    $matches = [];
 
-                    if (is_numeric($pid) && $pid != 0) {
+                    preg_match_all('#^(.*)\s(\d+)$#', $line, $matches);
 
-                        $processes[$pid] = $cmd;
+                    if (count($matches) == 3
+                        &&
+                        !empty($matches[2][0])
+                        &&
+                        !empty($matches[1][0])
+                    ) {
+                        $processes[$matches[2][0]] = $matches[1][0];
+                    }
 
+                } else {
+
+                    $matches = [];
+
+                    preg_match_all('#^(\d+)\s(.*)$#', $line, $matches);
+
+                    if (count($matches) == 3
+                        &&
+                        !empty($matches[2][0])
+                        &&
+                        !empty($matches[1][0])
+                    ) {
+                        $processes[$matches[1][0]] = $matches[2][0];
                     }
 
                 }
+
             }
 
             return $processes;

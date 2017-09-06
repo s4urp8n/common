@@ -12,6 +12,37 @@ class CommonTest extends PHPUnit\Framework\TestCase
         $this->assertFalse(Common::getClientIP());
     }
 
+    public function testGetProcessesList()
+    {
+
+        $processes = Common::getProcessesList();
+
+        $this->assertTrue(is_array($processes));
+        $this->assertTrue(!empty($processes));
+
+        if (Common::isWindowsOS()) {
+            $this->assertTrue(in_array('cmd.exe', $processes));
+        } else {
+
+            $bashExists = false;
+
+            foreach ($processes as $process) {
+
+                if (mb_stripos($process, 'sh', null, Common::getDefaultEncoding()) !== false
+                    ||
+                    mb_stripos($process, 'ps', null, Common::getDefaultEncoding()) !== false
+                ) {
+                    $bashExists = true;
+                    break;
+                }
+
+            }
+
+            $this->assertTrue($bashExists);
+        }
+
+    }
+
     public function testGetFileExtension()
     {
         $tests = [
@@ -59,37 +90,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
         foreach ($tests as $file => $result) {
             $this->assertSame(Common::getFilenameWithoutExtension($file), $result);
         }
-    }
-
-    public function testGetProcesseList()
-    {
-
-        $processes = Common::getProcessesList();
-
-        $this->assertTrue(is_array($processes));
-        $this->assertTrue(!empty($processes));
-
-        if (Common::isWindowsOS()) {
-            $this->assertTrue(in_array('cmd.exe', $processes));
-        } else {
-
-            $bashExists = false;
-
-            foreach ($processes as $process) {
-
-                if (mb_stripos($process, 'sh', null, Common::getDefaultEncoding()) !== false
-                    ||
-                    mb_stripos($process, 'ps', null, Common::getDefaultEncoding()) !== false
-                ) {
-                    $bashExists = true;
-                    break;
-                }
-
-            }
-
-            $this->assertTrue($bashExists);
-        }
-
     }
 
     public function testExecuteWithTimeoutSystem()
