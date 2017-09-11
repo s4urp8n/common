@@ -46,6 +46,32 @@ namespace Zver {
             return 'UTF-8';
         }
 
+        public static function sortPathsByDepth($paths, $deepestFirst = true)
+        {
+
+            $paths = static::sortFilesAndFolders($paths);
+
+            usort($paths, function ($a, $b) use ($deepestFirst) {
+
+                $aCount = count(explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($a)));
+                $bCount = count(explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($b)));
+
+                if ($aCount == $bCount) {
+                    return 0;
+                }
+
+                $result = $deepestFirst ? 1 : -1;
+
+                if ($aCount > $bCount) {
+                    $result = $result * -1;
+                }
+
+                return $result;
+            });
+
+            return $paths;
+        }
+
         /**
          * Return associative array where keys are pids and values are commands
          *

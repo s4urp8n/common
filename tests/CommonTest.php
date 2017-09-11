@@ -7,6 +7,46 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testSortByDepth()
+    {
+
+        $test = [
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\32\rt86win7.cat',
+            'install.exe',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $deepestFirst = [
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+            '3\SETuP.exe',
+            'install.exe',
+        ];
+
+        $deepestLast = [
+            'install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $this->assertSame(Common::sortFilesAndFolders($deepestFirst), Common::sortFilesAndFolders($test));
+        $this->assertSame(Common::sortFilesAndFolders($deepestLast), Common::sortFilesAndFolders($test));
+        $this->assertSame($deepestFirst, Common::sortPathsByDepth($test, true));
+        $this->assertSame($deepestLast, Common::sortPathsByDepth($test, false));
+
+    }
+
     public function testGetIP()
     {
         $this->assertFalse(Common::getClientIP());
@@ -20,26 +60,24 @@ class CommonTest extends PHPUnit\Framework\TestCase
         $this->assertTrue(is_array($processes));
         $this->assertTrue(!empty($processes));
 
-        if (Common::isWindowsOS()) {
-            $this->assertTrue(in_array('cmd.exe', $processes));
-        } else {
+        $searchStrings = ['cmd.exe'];
 
-            $bashExists = false;
-
-            foreach ($processes as $process) {
-
-                if (mb_stripos($process, 'sh', null, Common::getDefaultEncoding()) !== false
-                    ||
-                    mb_stripos($process, 'ps', null, Common::getDefaultEncoding()) !== false
-                ) {
-                    $bashExists = true;
-                    break;
-                }
-
-            }
-
-            $this->assertTrue($bashExists);
+        if (Common::isLinuxOS()) {
+            $searchStrings = ['sh', 'ps'];
         }
+
+        $found = false;
+
+        foreach ($searchStrings as $searchString) {
+            foreach ($processes as $process) {
+                if (mb_stripos($process, $searchString, 0, Common::getDefaultEncoding()) !== false) {
+                    $found = true;
+                    break 2;
+                }
+            }
+        }
+
+        $this->assertTrue($found);
 
     }
 
