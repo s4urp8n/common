@@ -7,6 +7,25 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testSecondsToTime()
+    {
+        $tests = [
+            0                                       => '00:00:00:00',
+            1                                       => '00:00:00:01',
+            100                                     => '00:00:01:40',
+            101                                     => '00:00:01:41',
+            3600                                    => '00:01:00:00',
+            3600 * 24 + 3600 + 60 + 3               => '01:01:01:03',
+            99 * 86400 + 3600 + 63                  => '99:01:01:03',
+            9999 * 86400 + 23 * 3600 + 59 * 60 + 59 => '9999:23:59:59',
+        ];
+
+        foreach ($tests as $input => $output) {
+            $this->assertSame(Common::getTimeFromSeconds($input), $output);
+        }
+
+    }
+
     public function testSortByDepth()
     {
 
