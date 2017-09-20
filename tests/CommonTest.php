@@ -22,6 +22,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
         foreach ($tests as $input => $output) {
             $this->assertSame(Common::getTimeFromSeconds($input), $output);
+            $this->assertSame(Common::getTimeFromSeconds($input, true), explode(':', $output));
         }
 
     }

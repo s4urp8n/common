@@ -12,7 +12,15 @@ namespace Zver {
     class Common
     {
 
-        public static function getTimeFromSeconds($seconds)
+        /**
+         * Convert seconds to time like
+         *
+         * @param      $seconds
+         * @param bool $asArray If this param set to true return array [d,h,m,s]
+         *
+         * @return string
+         */
+        public static function getTimeFromSeconds($seconds, $asArray = false)
         {
 
             $left = $seconds;
@@ -26,7 +34,6 @@ namespace Zver {
 
             $values = [];
 
-            //days
             foreach ($units as $index => $unit) {
 
                 $value = 0;
@@ -34,29 +41,32 @@ namespace Zver {
                 if ($left > 0) {
                     if ($unit == 1) {
                         $value = $left;
-                    } elseif ($left >= $unit) {
+                    } else {
+                        if ($left >= $unit) {
 
-                        $value = intval($left / $unit);
+                            $value = intval($left / $unit);
 
-                        $left -= $value * $unit;
+                            $left -= $value * $unit;
 
+                        }
                     }
                 }
 
                 if ($value < 10) {
                     $value = '0' . $value;
+                } else {
+                    $value = $value . '';
                 }
 
                 $values[] = $value;
 
             }
 
-            return implode(':', $values);
+            return $asArray ? $values : implode(':', $values);
 
         }
 
-        public
-        static function getClientIP()
+        public static function getClientIP()
         {
 
             $priorities = [
@@ -85,16 +95,13 @@ namespace Zver {
          *
          * @return string
          */
-        public
-        static function getDefaultEncoding()
+        public static function getDefaultEncoding()
         {
             return 'UTF-8';
         }
 
-        public
-        static function sortPathsByDepth(
-            $paths, $deepestFirst = true
-        ) {
+        public static function sortPathsByDepth($paths, $deepestFirst = true)
+        {
 
             $paths = static::sortFilesAndFolders($paths);
 
@@ -124,8 +131,7 @@ namespace Zver {
          *
          * @return array
          */
-        public
-        static function getProcessesList()
+        public static function getProcessesList()
         {
 
             $processes = [];
@@ -184,29 +190,22 @@ namespace Zver {
          *
          * @return string
          */
-        public
-        static function replaceSlashesToPlatformSlashes(
-            $path
-        ) {
+        public static function replaceSlashesToPlatformSlashes($path)
+        {
             return mb_eregi_replace('[' . static::getSlashesRegExp() . ']+', DIRECTORY_SEPARATOR, $path);
         }
 
-        public
-        static function stripBeginningSlashes(
-            $path
-        ) {
+        public static function stripBeginningSlashes($path)
+        {
             return mb_eregi_replace('^[' . static::getSlashesRegExp() . ']+', '', $path);
         }
 
-        public
-        static function stripEndingSlashes(
-            $path
-        ) {
+        public static function stripEndingSlashes($path)
+        {
             return mb_eregi_replace('[' . static::getSlashesRegExp() . ']+$', '', $path);
         }
 
-        protected
-        static function getSlashesRegExp()
+        protected static function getSlashesRegExp()
         {
             return preg_quote('/') . preg_quote('\\');
         }
@@ -219,10 +218,8 @@ namespace Zver {
          *
          * @return string
          */
-        public
-        static function convertToDefaultEncoding(
-            $string, $fromEncoding
-        ) {
+        public static function convertToDefaultEncoding($string, $fromEncoding)
+        {
             return iconv($fromEncoding, self::getDefaultEncoding() . '//IGNORE', $string);
         }
 
@@ -231,10 +228,8 @@ namespace Zver {
          *
          * @param string $directory
          */
-        public
-        static function registerAutoloadClassesFrom(
-            $directory
-        ) {
+        public static function registerAutoloadClassesFrom($directory)
+        {
             spl_autoload_register(function ($className) use ($directory) {
 
                 $realDirectory = realpath(static::replaceSlashesToPlatformSlashes($directory));
@@ -261,16 +256,13 @@ namespace Zver {
             });
         }
 
-        public
-        static function getOSName()
+        public static function getOSName()
         {
             return PHP_OS;
         }
 
-        public
-        static function isWindowsOS(
-            $forcedString = null
-        ) {
+        public static function isWindowsOS($forcedString = null)
+        {
             $string = empty($forcedString) ? static::getOSName() : $forcedString;
 
             $regexps = [
@@ -288,10 +280,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function isLinuxOS(
-            $forcedString = null
-        ) {
+        public static function isLinuxOS($forcedString = null)
+        {
             $string = empty($forcedString) ? static::getOSName() : $forcedString;
 
             $regexps = [
@@ -318,10 +308,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function isProcessRunning(
-            $pid, $processName = null
-        ) {
+        public static function isProcessRunning($pid, $processName = null)
+        {
             $windowsCommand = 'tasklist';
             $windowsRegexp = '\s+' . $pid . '\s+';
 
@@ -354,10 +342,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function sortFilesAndFolders(
-            $filesAndFolders
-        ) {
+        public static function sortFilesAndFolders($filesAndFolders)
+        {
             usort($filesAndFolders, function ($a, $b) {
                 return strcasecmp($a, $b);
             });
@@ -365,10 +351,8 @@ namespace Zver {
             return $filesAndFolders;
         }
 
-        public
-        static function getDirectoryContent(
-            $directory
-        ) {
+        public static function getDirectoryContent($directory)
+        {
             clearstatcache(true);
 
             $content = [];
@@ -395,10 +379,8 @@ namespace Zver {
             return $content;
         }
 
-        public
-        static function getDirectoryContentRecursive(
-            $directory
-        ) {
+        public static function getDirectoryContentRecursive($directory)
+        {
 
             clearstatcache(true);
 
@@ -413,10 +395,8 @@ namespace Zver {
             return static::sortFilesAndFolders($content);
         }
 
-        public
-        static function executeInSystem(
-            $command
-        ) {
+        public static function executeInSystem($command)
+        {
             $handle = popen($command, 'r');
             $output = stream_get_contents($handle);
             pclose($handle);
@@ -424,8 +404,7 @@ namespace Zver {
             return $output;
         }
 
-        public
-        static function isTimeoutLinuxInstalled()
+        public static function isTimeoutLinuxInstalled()
         {
 
             $output = [];
@@ -467,13 +446,8 @@ namespace Zver {
          *
          * @return bool
          */
-        public
-        static function executeInSystemWithTimeout(
-            $command,
-            $timeout = 30,
-            &$output = null,
-            &$exitcode = null
-        ) {
+        public static function executeInSystemWithTimeout($command, $timeout = 30, &$output = null, &$exitcode = null)
+        {
 
             if (static::isLinuxOS()) {
 
@@ -498,10 +472,8 @@ namespace Zver {
 
         }
 
-        public
-        static function killProcess(
-            $pid
-        ) {
+        public static function killProcess($pid)
+        {
             if (static::isWindowsOS()) {
                 static::executeInSystem('taskkill /F /T /s localhost /PID ' . $pid . ' 2>&1');
             } else {
@@ -509,10 +481,8 @@ namespace Zver {
             }
         }
 
-        public
-        static function executeInSystemAsync(
-            $command, $outputFile = null
-        ) {
+        public static function executeInSystemAsync($command, $outputFile = null)
+        {
 
             if (is_null($outputFile)) {
                 $outputFile = static::isWindowsOS() ? 'nul' : '/dev/null';
@@ -531,10 +501,8 @@ namespace Zver {
             }
         }
 
-        public
-        static function getHumanReadableBytes(
-            $bytes, $spaceBefore = ' '
-        ) {
+        public static function getHumanReadableBytes($bytes, $spaceBefore = ' ')
+        {
 
             $sizes = ["B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
             $index = 0;
@@ -551,19 +519,15 @@ namespace Zver {
             return $result . $spaceBefore . $sizes[$index];
         }
 
-        public
-        static function createDirectoryIfNotExists(
-            $directory, $mode = 0777
-        ) {
+        public static function createDirectoryIfNotExists($directory, $mode = 0777)
+        {
             if (!is_dir($directory)) {
                 @mkdir($directory, $mode, true);
             }
         }
 
-        public
-        static function removeDirectory(
-            $directory
-        ) {
+        public static function removeDirectory($directory)
+        {
             clearstatcache(true);
 
             if (is_dir($directory)) {
@@ -626,32 +590,29 @@ namespace Zver {
          *
          * @return bool
          */
-        public
-        static function remove(
-            $path
-        ) {
+        public static function remove($path)
+        {
             clearstatcache(true);
 
             if (is_file($path)) {
                 return unlink($path);
-            } elseif (is_dir($path)) {
-                return static::removeDirectory($path);
+            } else {
+                if (is_dir($path)) {
+                    return static::removeDirectory($path);
+                }
             }
 
         }
 
-        public
-        static function removeDirectoryContents(
-            $directory
-        ) {
+        public static function removeDirectoryContents($directory)
+        {
             clearstatcache(true);
             static::removeDirectory($directory);
             clearstatcache(true);
             static::createDirectoryIfNotExists($directory);
         }
 
-        public
-        static function getNullDevice()
+        public static function getNullDevice()
         {
             return static::isWindowsOS() ? 'nul' : '/dev/null';
         }
@@ -665,10 +626,8 @@ namespace Zver {
          *
          * @return bool
          */
-        public
-        static function copy(
-            $source, $destinationDirectory
-        ) {
+        public static function copy($source, $destinationDirectory)
+        {
 
             clearstatcache(true);
             if (file_exists($source) && is_dir($destinationDirectory)) {
@@ -727,10 +686,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function move(
-            $source, $destination
-        ) {
+        public static function move($source, $destination)
+        {
 
             $source = static::stripEndingSlashes($source);
             $destination = static::stripEndingSlashes($destination);
@@ -756,10 +713,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function getAllCombinations(
-            array $array
-        ) {
+        public static function getAllCombinations(array $array)
+        {
             $current = $combinations = [];
             $count = count($array);
             $max = pow(2, $count) - 1;
@@ -853,10 +808,8 @@ namespace Zver {
 
         }
 
-        public
-        static function getFilenameWithoutExtension(
-            $filename
-        ) {
+        public static function getFilenameWithoutExtension($filename)
+        {
 
             $parts = explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($filename));
 
@@ -882,10 +835,8 @@ namespace Zver {
             return false;
         }
 
-        public
-        static function getFileExtension(
-            $filename
-        ) {
+        public static function getFileExtension($filename)
+        {
             $lastDot = mb_strrpos($filename, '.', false, static::getDefaultEncoding());
 
             if ($lastDot !== false) {
@@ -906,10 +857,8 @@ namespace Zver {
          * @param callable $callback
          * @param null     $linesLimit
          */
-        public
-        static function readFileByLines(
-            $path, callable $callback, $linesLimit = null
-        ) {
+        public static function readFileByLines($path, callable $callback, $linesLimit = null)
+        {
 
             $currentLine = -1;
 
@@ -941,12 +890,8 @@ namespace Zver {
 
         }
 
-        public
-        static function readFileByLinesFromEnd(
-            $path,
-            callable $callback,
-            $linesLimit = null
-        ) {
+        public static function readFileByLinesFromEnd($path, callable $callback, $linesLimit = null)
+        {
 
             $lines = [];
             $fh = fopen($path, "r");
@@ -981,21 +926,23 @@ namespace Zver {
                             break;
                         }
 
-                    } elseif ($i == 0) {
-                        /**
-                         * END OF FILE
-                         */
-                        $lineCount++;
-                        $lines[$lineCount] = $char . $currentLine;
-
-                        $callbackResult = call_user_func($callback, $lines[$lineCount]);
-
-                        if ($lineCount == $linesLimit || $callbackResult === false) {
-                            break;
-                        }
-
                     } else {
-                        $currentLine = $char . $currentLine;
+                        if ($i == 0) {
+                            /**
+                             * END OF FILE
+                             */
+                            $lineCount++;
+                            $lines[$lineCount] = $char . $currentLine;
+
+                            $callbackResult = call_user_func($callback, $lines[$lineCount]);
+
+                            if ($lineCount == $linesLimit || $callbackResult === false) {
+                                break;
+                            }
+
+                        } else {
+                            $currentLine = $char . $currentLine;
+                        }
                     }
                 }
 
@@ -1004,8 +951,7 @@ namespace Zver {
             fclose($fh);
         }
 
-        public
-        static function getTimestampMicrotime()
+        public static function getTimestampMicrotime()
         {
             return number_format(
                 microtime(true),
@@ -1015,11 +961,8 @@ namespace Zver {
             );
         }
 
-        public
-        static function getLastFileLines(
-            $path,
-            $linesCount
-        ) {
+        public static function getLastFileLines($path, $linesCount)
+        {
             $lines = [];
 
             static::readFileByLinesFromEnd($path, function ($line) use (&$lines) {
@@ -1029,11 +972,8 @@ namespace Zver {
             return implode(PHP_EOL, array_reverse($lines));
         }
 
-        public
-        static function getFirstFileLines(
-            $path,
-            $linesCount
-        ) {
+        public static function getFirstFileLines($path, $linesCount)
+        {
             $lines = [];
 
             static::readFileByLines($path, function ($line) use (&$lines) {
