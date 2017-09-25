@@ -451,7 +451,7 @@ namespace Zver {
 
             if (static::isLinuxOS()) {
 
-                @exec('timeout --kill-after=' . ($timeout + 2) . ' ' . $timeout . ' ' . $command, $output, $exitcode);
+                @exec('timeout --signal=9 --kill-after=' . ($timeout + 2) . ' ' . $timeout . ' ' . $command, $output, $exitcode);
 
                 if ($exitcode == 137 || $exitcode == 124) {
                     //Timeout reached
