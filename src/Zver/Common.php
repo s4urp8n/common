@@ -481,8 +481,10 @@ namespace Zver {
             }
         }
 
-        public static function executeInSystemAsync($command, $outputFile = null)
+        public static function executeInSystemAsync($command, $outputFile = null, $append = false)
         {
+
+            $toFile = $append ? ' >> ' : ' > ';
 
             if (is_null($outputFile)) {
                 $outputFile = static::isWindowsOS() ? 'nul' : '/dev/null';
@@ -492,12 +494,12 @@ namespace Zver {
 
                 $windowsCommand = 'start /b "async bg command" ' . $command;
 
-                $windowsCommand .= ' > "' . $outputFile . '" 2>&1';
+                $windowsCommand .= $toFile . ' "' . $outputFile . '" 2>&1';
 
                 pclose(popen($windowsCommand, 'r'));
 
             } else {
-                shell_exec($command . ' > ' . $outputFile . ' 2>&1 &');
+                shell_exec($command . $toFile . $outputFile . ' 2>&1 &');
             }
         }
 
