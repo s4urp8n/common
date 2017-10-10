@@ -451,7 +451,7 @@ namespace Zver {
 
             if (static::isLinuxOS()) {
 
-                @exec('timeout --signal=9 --kill-after=' . ($timeout + 2) . ' ' . $timeout . ' ' . $command, $output, $exitcode);
+                @exec('timeout --kill-after=' . ($timeout + 2) . ' ' . $timeout . ' ' . $command, $output, $exitcode);
 
                 if ($exitcode == 137 || $exitcode == 124) {
                     //Timeout reached
@@ -632,6 +632,7 @@ namespace Zver {
         {
 
             clearstatcache(true);
+
             if (file_exists($source) && is_dir($destinationDirectory)) {
 
                 $source = static::replaceSlashesToPlatformSlashes($source);
