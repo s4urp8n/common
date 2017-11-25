@@ -16,25 +16,26 @@ namespace Zver {
          * Convert seconds to time like
          *
          * @param      $seconds
-         * @param bool $asArray If this param set to true return array [d,h,m,s]
+         * @param bool $asArray   If this param set to true return array [d,h,m,s]
+         * @param bool $mnemonics If this param is set and $asArray is false then return value be like 00d:01h:05m:06s
          *
          * @return string
          */
-        public static function getTimeFromSeconds($seconds, $asArray = false)
+        public static function getTimeFromSeconds($seconds, $asArray = false, $mnemonics = false)
         {
 
             $left = $seconds;
 
             $units = [
-                86400,
-                3600,
-                60,
-                1,
+                'd' => 86400,
+                'h' => 3600,
+                'm' => 60,
+                's' => 1,
             ];
 
             $values = [];
 
-            foreach ($units as $index => $unit) {
+            foreach ($units as $mnemonic => $unit) {
 
                 $value = 0;
 
@@ -58,7 +59,7 @@ namespace Zver {
                     $value = $value . '';
                 }
 
-                $values[] = $value;
+                $values[] = $mnemonics ? $value . $mnemonic : $value;
 
             }
 

@@ -25,6 +25,22 @@ class CommonTest extends PHPUnit\Framework\TestCase
             $this->assertSame(Common::getTimeFromSeconds($input, true), explode(':', $output));
         }
 
+        $tests = [
+            0                                       => '00d:00h:00m:00s',
+            1                                       => '00d:00h:00m:01s',
+            100                                     => '00d:00h:01m:40s',
+            101                                     => '00d:00h:01m:41s',
+            3600                                    => '00d:01h:00m:00s',
+            3600 * 24 + 3600 + 60 + 3               => '01d:01h:01m:03s',
+            99 * 86400 + 3600 + 63                  => '99d:01h:01m:03s',
+            9999 * 86400 + 23 * 3600 + 59 * 60 + 59 => '9999d:23h:59m:59s',
+        ];
+
+        foreach ($tests as $input => $output) {
+            $this->assertSame(Common::getTimeFromSeconds($input, false, true), $output);
+            $this->assertSame(Common::getTimeFromSeconds($input, true, true), explode(':', $output));
+        }
+
     }
 
     public function testSortByDepth()
