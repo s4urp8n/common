@@ -541,6 +541,8 @@ namespace Zver {
 
         public static function createDirectoryIfNotExists($directory, $mode = 0777)
         {
+            clearstatcache(true);
+
             if (!is_dir($directory)) {
                 @mkdir($directory, $mode, true);
             }
@@ -709,11 +711,10 @@ namespace Zver {
 
         public static function move($source, $destination)
         {
+            clearstatcache(true);
 
             $source = static::stripEndingSlashes($source);
             $destination = static::stripEndingSlashes($destination);
-
-            clearstatcache(true);
 
             if (file_exists($source) || is_dir($source)) {
 
