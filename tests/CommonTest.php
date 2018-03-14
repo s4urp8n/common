@@ -7,6 +7,30 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testIsIP()
+    {
+
+        $tests = [
+            '192.168.0.1'    => true,
+            '19.18.10.10'    => true,
+            '0.0.00.0'       => true,
+            '0.0.00.000'     => true,
+            '266.168.0.1'    => false,
+            '206,1.168.0.1'  => false,
+            '266.168.01'     => false,
+            '266.168,1.5.01' => false,
+            '266.16801'      => false,
+            'ccc.sss.ss.sds' => false,
+            'c4.s3s.s1.2s'   => false,
+            '4.3.1.2s'       => false,
+        ];
+
+        foreach ($tests as $input => $output) {
+            $this->assertSame(Common::isIP($input), $output);
+        }
+
+    }
+
     public function testSecondsToTime()
     {
         $tests = [
@@ -226,11 +250,9 @@ class CommonTest extends PHPUnit\Framework\TestCase
                 $this->assertSame($result, $test['result'], 'Results of test ' . $index . ' not the same');
                 $this->assertSame($output, $test['expected']);
 
-            }
-            catch (\Exception $e) {
+            } catch (\Exception $e) {
 
-            }
-            catch (\Throwable $e) {
+            } catch (\Throwable $e) {
 
             }
 
@@ -1449,7 +1471,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
     }
 
     protected static $testDireftoriesDepth = 5;
-    protected static $testExt = 'txt';
+    protected static $testExt              = 'txt';
 
     public function createTestDirectories()
     {

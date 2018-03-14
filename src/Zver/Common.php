@@ -67,6 +67,22 @@ namespace Zver {
 
         }
 
+        public static function isIP($ip)
+        {
+            $parts = explode('.', $ip);
+
+            if (count($parts) == 4) {
+                foreach ($parts as $part) {
+                    if (!is_numeric($part) || $part > 255 || $part < 0) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
+        }
+
         public static function getClientIP()
         {
 
@@ -80,11 +96,12 @@ namespace Zver {
             ];
 
             foreach ($priorities as $priority) {
-
                 if (!empty($_SERVER) && !empty($_SERVER[$priority])) {
-                    return $_SERVER[$priority];
+                    $ip = trim($_SERVER[$priority]);
+                    if (static::isIP($ip)) {
+                        return $ip;
+                    }
                 }
-
             }
 
             return false;
