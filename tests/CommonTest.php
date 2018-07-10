@@ -7,6 +7,24 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testIsExt()
+    {
+        $rootDir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
+        $tests = [
+            ['.travis.yml', 'Yml', true],
+            ['.travis.yml', 'YmL', true],
+            ['.travis.yml', 'yMl', true],
+            ['.travis.yml', '.yMl', false],
+            ['10sec.php', '.yMl', false],
+            ['10sec.php', '.php', false],
+            ['10sec.php', 'php', true],
+        ];
+
+        foreach ($tests as $test) {
+            $this->assertSame(Common::isFileExtension($rootDir . $test[0], $test[1]), $test[2]);
+        }
+    }
+
     public function testIsIP()
     {
 

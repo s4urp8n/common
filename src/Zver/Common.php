@@ -872,6 +872,20 @@ namespace Zver {
             return false;
         }
 
+        public static function isFileExtension($filename, $ext)
+        {
+            $fileext = static::getFileExtension($filename);
+
+            if ($fileext === false) {
+                return false;
+            }
+
+            $fileext = mb_strtolower($fileext, Common::getDefaultEncoding());
+            $ext = mb_strtolower($ext, Common::getDefaultEncoding());
+
+            return $fileext == $ext;
+        }
+
         /**
          * Read file line-by-line until end of file is reached or $linesLimit reached or $callback return FALSE
          *
