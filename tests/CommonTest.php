@@ -7,6 +7,84 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    public function testSortFilesAndFolders()
+    {
+
+        $test = [
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\32\rt86win7.cat',
+            'install.exe',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $deepestFirst = [
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+            '3\SETuP.exe',
+            'install.exe',
+        ];
+
+        $deepestLast = [
+            'install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $this->assertSame(Common::sortFilesAndFolders($deepestFirst), Common::sortFilesAndFolders($test));
+        $this->assertSame(Common::sortFilesAndFolders($deepestLast), Common::sortFilesAndFolders($test));
+
+    }
+
+
+    public function testSortByDepth()
+    {
+
+        $test = [
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\32\rt86win7.cat',
+            'install.exe',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $deepestFirst = [
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+            '3\SETuP.exe',
+            'install.exe',
+        ];
+
+        $deepestLast = [
+            'install.exe',
+            '3\SETuP.exe',
+            '3\WIN7\32\rt86win7.cat',
+            '3\WIN7\32\rt86win7.inf',
+            '3\WIN7\64\install.exe',
+            '3\WIN7\64\rt64win7.cat',
+            '3\WIN7\64\rt64win7.inf',
+        ];
+
+        $this->assertSame($deepestFirst, Common::sortPathsByDepth($test, true));
+        $this->assertSame($deepestLast, Common::sortPathsByDepth($test, false));
+
+    }
+
+
     public function testIsExt()
     {
         $rootDir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
@@ -82,46 +160,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
             $this->assertSame(Common::getTimeFromSeconds($input, false, true), $output);
             $this->assertSame(Common::getTimeFromSeconds($input, true, true), explode(':', $output));
         }
-
-    }
-
-    public function testSortByDepth()
-    {
-
-        $test = [
-            '3\WIN7\64\rt64win7.cat',
-            '3\WIN7\64\install.exe',
-            '3\SETuP.exe',
-            '3\WIN7\32\rt86win7.inf',
-            '3\WIN7\32\rt86win7.cat',
-            'install.exe',
-            '3\WIN7\64\rt64win7.inf',
-        ];
-
-        $deepestFirst = [
-            '3\WIN7\32\rt86win7.cat',
-            '3\WIN7\32\rt86win7.inf',
-            '3\WIN7\64\install.exe',
-            '3\WIN7\64\rt64win7.cat',
-            '3\WIN7\64\rt64win7.inf',
-            '3\SETuP.exe',
-            'install.exe',
-        ];
-
-        $deepestLast = [
-            'install.exe',
-            '3\SETuP.exe',
-            '3\WIN7\32\rt86win7.cat',
-            '3\WIN7\32\rt86win7.inf',
-            '3\WIN7\64\install.exe',
-            '3\WIN7\64\rt64win7.cat',
-            '3\WIN7\64\rt64win7.inf',
-        ];
-
-        $this->assertSame(Common::sortFilesAndFolders($deepestFirst), Common::sortFilesAndFolders($test));
-        $this->assertSame(Common::sortFilesAndFolders($deepestLast), Common::sortFilesAndFolders($test));
-        $this->assertSame($deepestFirst, Common::sortPathsByDepth($test, true));
-        $this->assertSame($deepestLast, Common::sortPathsByDepth($test, false));
 
     }
 
@@ -1489,7 +1527,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
     }
 
     protected static $testDireftoriesDepth = 5;
-    protected static $testExt              = 'txt';
+    protected static $testExt = 'txt';
 
     public function createTestDirectories()
     {

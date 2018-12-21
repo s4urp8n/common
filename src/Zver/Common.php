@@ -16,7 +16,7 @@ namespace Zver {
          * Convert seconds to time like
          *
          * @param      $seconds
-         * @param bool $asArray   If this param set to true return array [d,h,m,s]
+         * @param bool $asArray If this param set to true return array [d,h,m,s]
          * @param bool $mnemonics If this param is set and $asArray is false then return value be like 00d:01h:05m:06s
          *
          * @return string
@@ -118,6 +118,26 @@ namespace Zver {
             return 'UTF-8';
         }
 
+        public static function getPHPVersion()
+        {
+            return trim(phpversion());
+        }
+
+        public static function isPHP7x()
+        {
+            return static::isPHPVersionMatch('#^7\.#');
+        }
+
+        public static function isPHP5x()
+        {
+            return static::isPHPVersionMatch('#^5\.#');
+        }
+
+        public static function isPHPVersionMatch($regexp)
+        {
+            return preg_match($regexp, static::getPHPVersion());
+        }
+
         public static function sortPathsByDepth($paths, $deepestFirst = true)
         {
 
@@ -129,7 +149,13 @@ namespace Zver {
                 $bCount = count(explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($b)));
 
                 if ($aCount == $bCount) {
-                    return 0;
+                    //WARNING PHP VERSION DIFFERENCE IN SAME RESULTS COMPARE
+                    //WE MUST INVERT RESULT IN VERSIONS OF PHP OLDER 7
+                    //PHP 5.6 output:
+                    //COMPARING: b with a
+                    //PHP 7.x output:
+                    //COMPARING: a with b
+                    return strcasecmp($a, $b);
                 }
 
                 $result = $deepestFirst ? 1 : -1;
@@ -458,7 +484,7 @@ namespace Zver {
          * Timeout functionality available only on linux systems
          *
          * @param      $command
-         * @param int  $timeout
+         * @param int $timeout
          * @param null $output
          * @param null $exitcode
          *
@@ -891,7 +917,7 @@ namespace Zver {
          *
          * @param          $path
          * @param callable $callback
-         * @param null     $linesLimit
+         * @param null $linesLimit
          */
         public static function readFileByLines($path, callable $callback, $linesLimit = null)
         {
