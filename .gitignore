@@ -11,3 +11,6 @@
 /vendor/
 /composer.lock
 /coverage
+/composer.phar
+/phpunit.phar
+

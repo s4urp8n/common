@@ -149,7 +149,7 @@ namespace Zver {
                 $bCount = count(explode(DIRECTORY_SEPARATOR, static::replaceSlashesToPlatformSlashes($b)));
 
                 if ($aCount == $bCount) {
-                    //WARNING PHP VERSION DIFFERENCE IN SAME RESULTS COMPARE
+                    //WARNING PHP VERSION DIFFERENCE IN RESULTS EQUALS
                     //WE MUST INVERT RESULT IN VERSIONS OF PHP OLDER 7
                     //PHP 5.6 output:
                     //COMPARING: b with a
