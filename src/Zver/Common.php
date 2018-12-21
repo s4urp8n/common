@@ -13,7 +13,7 @@ namespace Zver {
     {
 
         /**
-         * Convert seconds to time like
+         * Convert seconds to time
          *
          * @param      $seconds
          * @param bool $asArray If this param set to true return array [d,h,m,s]
@@ -105,7 +105,6 @@ namespace Zver {
             }
 
             return false;
-
         }
 
         /**
@@ -121,16 +120,6 @@ namespace Zver {
         public static function getPHPVersion()
         {
             return trim(phpversion());
-        }
-
-        public static function isPHP7x()
-        {
-            return static::isPHPVersionMatch('#^7\.#');
-        }
-
-        public static function isPHP5x()
-        {
-            return static::isPHPVersionMatch('#^5\.#');
         }
 
         public static function isPHPVersionMatch($regexp)
@@ -352,6 +341,7 @@ namespace Zver {
             return false;
         }
 
+        //TODO: CHECK process name contains intead of beginnings match
         public static function isProcessRunning($pid, $processName = null)
         {
             $windowsCommand = 'tasklist';
@@ -425,8 +415,6 @@ namespace Zver {
 
         public static function getDirectoryContentRecursive($directory)
         {
-
-            clearstatcache(true);
 
             $content = static::getDirectoryContent($directory);
 
@@ -669,6 +657,9 @@ namespace Zver {
          * Copy file or directory to specified directory.
          * Destination directory must exists before copy started
          *
+         * @see Common::createDirectoryIfNotExists()
+         * @see Common::move()
+         *
          * @param $source
          * @param $destinationDirectory
          *
@@ -736,6 +727,14 @@ namespace Zver {
 
         }
 
+        /**
+         * Move source file to destination file
+         *
+         * @param $source string
+         * @param $destination string
+         * @return bool
+         * @throws \Exception
+         */
         public static function move($source, $destination)
         {
             clearstatcache(true);
@@ -747,23 +746,20 @@ namespace Zver {
                 throw new \Exception('Source file "' . $source . '" is not exists');
             }
 
-            if (file_exists($source) || is_dir($source)) {
+            static::createDirectoryIfNotExists(dirname($destination));
 
-                $command = 'move /Y ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
+            $command = 'move /Y ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
 
-                if (static::isLinuxOS()) {
-                    $command = 'mv -f ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
-                }
-
-                @exec($command . ' 2>&1', $output, $exitCode);
-
-                clearstatcache(true);
-
-                return file_exists($destination);
-
+            if (static::isLinuxOS()) {
+                $command = 'mv -f ' . escapeshellarg($source) . ' ' . escapeshellarg($destination);
             }
 
-            return false;
+            @exec($command . ' 2>&1', $output, $exitCode);
+
+            clearstatcache(true);
+
+            return file_exists($destination);
+
         }
 
         public static function getAllCombinations(array $array)

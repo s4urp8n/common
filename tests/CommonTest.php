@@ -7,6 +7,21 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     use \Zver\Package\Helper;
 
+    protected static $testDireftoriesDepth = 5;
+    protected static $testExt = 'txt';
+
+    public static function setUpBeforeClass()
+    {
+        sleep(1);
+        file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
+        sleep(1);
+    }
+
+    public static function tearDownAfterClass()
+    {
+        static::setUpBeforeClass();
+    }
+
     public function testSortFilesAndFolders()
     {
 
@@ -44,7 +59,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
         $this->assertSame(Common::sortFilesAndFolders($deepestLast), Common::sortFilesAndFolders($test));
 
     }
-
 
     public function testSortByDepth()
     {
@@ -84,7 +98,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
-
     public function testIsExt()
     {
         $rootDir = __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR;
@@ -118,6 +131,9 @@ class CommonTest extends PHPUnit\Framework\TestCase
             '266.16801'      => false,
             'ccc.sss.ss.sds' => false,
             'c4.s3s.s1.2s'   => false,
+            'c4.'            => false,
+            'c4.фывфыв'      => false,
+            'a.sfk.nr.93r'   => false,
             '4.3.1.2s'       => false,
         ];
 
@@ -986,7 +1002,7 @@ class CommonTest extends PHPUnit\Framework\TestCase
 
     }
 
-    public function testFileMove()
+    public function testMoveFile()
     {
         $dir = __DIR__ . DIRECTORY_SEPARATOR;
 
@@ -1095,18 +1111,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
         call_user_func($callback, $args);
 
         return time() - $startTime;
-    }
-
-    public static function setUpBeforeClass()
-    {
-        sleep(1);
-        file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
-        sleep(1);
-    }
-
-    public static function tearDownAfterClass()
-    {
-        static::setUpBeforeClass();
     }
 
     public function testHumanReadableBytes()
@@ -1525,9 +1529,6 @@ class CommonTest extends PHPUnit\Framework\TestCase
         Common::executeInSystemWithTimeout(static::getSleepSystemCommand(30), 10);
 
     }
-
-    protected static $testDireftoriesDepth = 5;
-    protected static $testExt = 'txt';
 
     public function createTestDirectories()
     {
