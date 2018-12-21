@@ -676,63 +676,64 @@ namespace Zver {
          */
         public static function copy($source, $destinationDirectory)
         {
-
             clearstatcache(true);
 
-            if (file_exists($source) && is_dir($destinationDirectory)) {
+            $source = static::replaceSlashesToPlatformSlashes($source);
+            $destinationDirectory = static::replaceSlashesToPlatformSlashes($destinationDirectory);
 
-                $source = static::replaceSlashesToPlatformSlashes($source);
+            if (!file_exists($source)) {
+                throw new \Exception('Source file "' . $source . '" is not exists');
+            }
 
-                clearstatcache(true);
+            if (!is_dir($destinationDirectory)) {
+                throw new \Exception('Destination directory "' . $destinationDirectory . '" is not exists or not is directory');
+            }
 
-                $commandTemplate = 'xcopy "%s" "%s" /R /Q /Y /I /H';
+            $commandTemplate = 'xcopy "%s" "%s" /R /Q /Y /I /H';
 
-                if (is_dir($source)) {
+            if (is_dir($source)) {
 
-                    $commandTemplate .= ' /E';
-                    /**
-                     * Trailing directory separator
-                     */
-                    if ($source[mb_strlen($source) - 1] != DIRECTORY_SEPARATOR) {
-                        if (static::isLinuxOS()) {
-                            $source .= DIRECTORY_SEPARATOR;
-                        }
-                    } else {
-                        $source = mb_substr($source, 0, -1, static::getDefaultEncoding());
+                $commandTemplate .= ' /E';
+
+                /**
+                 * Trailing directory separator
+                 */
+                if ($source[mb_strlen($source) - 1] != DIRECTORY_SEPARATOR) {
+                    if (static::isLinuxOS()) {
+                        $source .= DIRECTORY_SEPARATOR;
                     }
-
-                    /**
-                     * On windows create folder structure
-                     */
-                    if (static::isWindowsOS()) {
-                        static::createDirectoryIfNotExists(static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source)));
-                    }
-
+                } else {
+                    $source = mb_substr($source, 0, -1, static::getDefaultEncoding());
                 }
 
-                $destination = is_dir($source)
-                    ? static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source))
-                    : $destinationDirectory;
-
-                $command = sprintf($commandTemplate, $source, $destination);
-
-                if (static::isLinuxOS()) {
-                    $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source,
-                                       $destinationDirectory);
+                /**
+                 * On windows create folder structure
+                 */
+                if (static::isWindowsOS()) {
+                    static::createDirectoryIfNotExists(static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source)));
                 }
-
-                @exec($command . ' 2>&1', $output, $exitCode);
-
-                clearstatcache(true);
-
-                $destinationFile = static::stripEndingSlashes(static::replaceSlashesToPlatformSlashes($destinationDirectory)) .
-                                   DIRECTORY_SEPARATOR . basename($source);
-
-                return file_exists($destinationFile);
 
             }
 
-            return false;
+            $destination = is_dir($source)
+                ? static::replaceSlashesToPlatformSlashes($destinationDirectory . DIRECTORY_SEPARATOR . basename($source))
+                : $destinationDirectory;
+
+            $command = sprintf($commandTemplate, $source, $destination);
+
+            if (static::isLinuxOS()) {
+                $command = sprintf('\cp -fr --no-preserve=mode,ownership "%s" "%s"', $source, $destinationDirectory);
+            }
+
+            @exec($command . ' 2>&1', $output, $exitCode);
+
+            clearstatcache(true);
+
+            $destinationPath = static::stripEndingSlashes(static::replaceSlashesToPlatformSlashes($destinationDirectory)) .
+                               DIRECTORY_SEPARATOR . basename($source);
+
+            return file_exists($destinationPath);
+
         }
 
         public static function move($source, $destination)
@@ -741,6 +742,10 @@ namespace Zver {
 
             $source = static::stripEndingSlashes($source);
             $destination = static::stripEndingSlashes($destination);
+
+            if (!file_exists($source)) {
+                throw new \Exception('Source file "' . $source . '" is not exists');
+            }
 
             if (file_exists($source) || is_dir($source)) {
 
