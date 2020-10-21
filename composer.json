@@ -1,7 +1,7 @@
 {
   "name": "zver/common",
   "description": "common class of ZVER",
-  "minimum-stability": "stable",
+  "minimum-stability": "dev",
   "config": {
     "optimize-autoloader": true
   },
@@ -19,6 +19,8 @@
     }
   },
   "require": {
+    "phpunit/php-code-coverage": "^7.0",
+    "phpunit/phpunit": "8.5.x-dev"
   },
   "require-dev": {
   }

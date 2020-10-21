@@ -10,16 +10,21 @@ class CommonTest extends PHPUnit\Framework\TestCase
     protected static $testDireftoriesDepth = 5;
     protected static $testExt = 'txt';
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         sleep(1);
         file_put_contents(static::getPackagePath('sync.txt'), 1, LOCK_EX);
         sleep(1);
     }
 
-    public static function tearDownAfterClass()
+    public static function tearDownAfterClass(): void
     {
         static::setUpBeforeClass();
+    }
+
+    public function testArrayChunkOffset()
+    {
+
     }
 
     public function testSortFilesAndFolders()
