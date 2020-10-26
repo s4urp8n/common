@@ -19,9 +19,9 @@
     }
   },
   "require": {
-    "phpunit/php-code-coverage": "^7.0",
-    "phpunit/phpunit": "8.5.x-dev"
+    "phpunit/php-code-coverage": "^7.0"
   },
   "require-dev": {
+    "phpunit/phpunit": "*"
   }
 }
